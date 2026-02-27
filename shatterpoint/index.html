@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHATTERPOINT</title>
+  <link rel="stylesheet" href="css/terminal.css">
+</head>
+<body>
+  <div id="crt-overlay"></div>
+
+  <!-- Title Screen -->
+  <div id="title-screen">
+    <pre id="title-art"></pre>
+    <div id="title-prompt" class="blink">[ PRESS ANY KEY TO BEGIN ]</div>
+  </div>
+
+  <!-- Main Game Terminal -->
+  <div id="terminal" class="hidden">
+    <div id="header">
+      <span id="header-left">COGNIZANCE BUREAU TERMINAL v4.7</span>
+      <span id="header-right">▓▓▓ CLASSIFIED ▓▓▓</span>
+    </div>
+
+    <div id="main-content">
+      <div id="viewscreen-container">
+        <div id="viewscreen-label"></div>
+        <pre id="viewscreen"></pre>
+      </div>
+
+      <div id="sidebar">
+        <div id="stats">
+          <div class="stat-row">
+            <span class="stat-label">RESONANCE</span>
+            <span class="stat-bar" id="resonance-bar"></span>
+            <span class="stat-value" id="resonance-value"></span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">SUSPICION</span>
+            <span class="stat-bar" id="suspicion-bar"></span>
+            <span class="stat-value" id="suspicion-value"></span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">QUIET LVL</span>
+            <span class="stat-bar" id="quiet-bar"></span>
+            <span class="stat-value" id="quiet-value"></span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">INTEGRITY</span>
+            <span class="stat-bar" id="integrity-bar"></span>
+            <span class="stat-value" id="integrity-value"></span>
+          </div>
+        </div>
+        <div id="inventory-panel">
+          <div class="panel-label">INVENTORY</div>
+          <div id="inventory-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="narrative"></div>
+
+    <div id="choices"></div>
+
+    <div id="footer">
+      <span id="location-display"></span>
+      <span id="controls-hint">[S]ave [L]oad [J]ournal</span>
+    </div>
+  </div>
+
+  <!-- Journal Overlay -->
+  <div id="journal-overlay" class="hidden">
+    <div id="journal-panel">
+      <div id="journal-header">═══ INVESTIGATION JOURNAL ═══</div>
+      <div id="journal-entries"></div>
+      <div id="journal-close">[ PRESS J OR ESC TO CLOSE ]</div>
+    </div>
+  </div>
+
+  <!-- Save/Load Overlay -->
+  <div id="save-overlay" class="hidden">
+    <div id="save-panel">
+      <div id="save-header"></div>
+      <div id="save-slots"></div>
+      <div id="save-close">[ PRESS ESC TO CLOSE ]</div>
+    </div>
+  </div>
+
+  <script src="js/engine/state.js"></script>
+  <script src="js/engine/conditions.js"></script>
+  <script src="js/engine/save-load.js"></script>
+  <script src="js/engine/scene-manager.js"></script>
+  <script src="js/ui/effects.js"></script>
+  <script src="js/ui/art.js"></script>
+  <script src="js/ui/renderer.js"></script>
+  <script src="js/data/items.js"></script>
+  <script src="js/data/npcs.js"></script>
+  <script src="js/data/scenes-act1.js"></script>
+  <script src="js/engine/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
