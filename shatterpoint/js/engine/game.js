@@ -6,6 +6,7 @@ class Game {
     this.sceneManager = new SceneManager(this.state);
     this.running = false;
     this.inputLocked = false;
+    this.gameStarted = false;
   }
 
   async start() {
@@ -18,7 +19,16 @@ class Game {
   }
 
   async beginGame() {
+    if (this.gameStarted) return;
+    this.gameStarted = true;
+
     Renderer.hideTitleScreen();
+
+    // Check for autosave
+    const autosave = SaveLoad.loadAutosave();
+    if (autosave) {
+      // For now, always start fresh. Load available through L key.
+    }
 
     // Load first scene
     await this.transitionToScene('act1_scene01');
@@ -27,6 +37,7 @@ class Game {
   async loadGame(saveData) {
     this.state = saveData.state;
     this.sceneManager = new SceneManager(this.state);
+    this.gameStarted = true;
     Renderer.hideTitleScreen();
     await this.transitionToScene(this.state.currentScene);
   }
@@ -35,10 +46,19 @@ class Game {
     this.inputLocked = true;
     Renderer.clearChoices();
 
+    // Handle restart -> title screen
+    if (sceneId === 'act1_scene01' && this.state.hasFlag('act1_complete')) {
+      this.state = new GameState();
+      this.sceneManager = new SceneManager(this.state);
+      this.gameStarted = false;
+      await Renderer.showTitleScreen();
+      return;
+    }
+
     Effects.sceneTransition(async () => {
       const scene = this.sceneManager.loadScene(sceneId);
       if (!scene) {
-        console.error('Failed to load scene:', sceneId);
+        console.error('Scene not found:', sceneId);
         this.inputLocked = false;
         return;
       }
@@ -69,9 +89,6 @@ class Game {
       return;
     }
 
-    // Flash affected stats
-    this.flashStatChanges(result);
-
     // Update stats display immediately
     Renderer.updateStats(this.state);
     Renderer.updateInventory(this.state);
@@ -97,11 +114,6 @@ class Game {
     }
   }
 
-  flashStatChanges(result) {
-    const choice = this.sceneManager.currentScene.choices.find(c => c.id === result.choiceText?.id);
-    // We'll flash based on known costs
-  }
-
   async gameOver(type) {
     if (type === 'captured') {
       await this.transitionToScene('game_over_captured');
@@ -109,10 +121,9 @@ class Game {
   }
 
   bindInput() {
-    // Keyboard input
     document.addEventListener('keydown', (e) => {
       // Title screen — any key starts game
-      if (!this.elements('terminal')) {
+      if (!this.gameStarted) {
         if (!e.repeat) {
           this.beginGame();
         }
@@ -171,10 +182,6 @@ class Game {
     document.getElementById('title-screen').addEventListener('click', () => {
       this.beginGame();
     });
-  }
-
-  elements(id) {
-    return document.getElementById(id)?.classList.contains('hidden') === false;
   }
 
   showSave() {

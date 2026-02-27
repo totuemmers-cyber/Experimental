@@ -1,0 +1,2058 @@
+// === SHATTERPOINT: Act I Scene Data ===
+// "The Impossible Crime" — 8 main scenes + sub-scenes
+
+const SCENES = {
+
+// ═══════════════════════════════════════════
+// SCENE 1: THE ASSIGNMENT
+// ═══════════════════════════════════════════
+
+act1_scene01: {
+  title: "The Assignment",
+  art: "bureau-office.txt",
+  location: "Cognizance Bureau · Tier 5",
+  description: `Director Senna Crowe's office smells of recycled air and cold authority. The Bureau seal gleams on the wall — an eye wreathed in neural filaments. Through the window behind her desk, the Spire climbs endlessly upward, its upper tiers lost in cloud and light pollution.
+
+Crowe stands behind her desk. She doesn't sit. She never sits when she's about to give you something unpleasant.
+
+{crowe: "Maren. Thank you for coming in. I know your... departure from the Bureau wasn't ideal. But we have a situation that requires your particular skills."}
+
+She slides a datapad across the desk.
+
+{crowe: "Lior Voss. CEO of Helios Collective. Found dead in his penthouse suite six hours ago. Cardiac arrest, officially. But the neural scarring tells a different story."}
+
+Her Lattice presence is a smooth wall of calm. Practiced. Impenetrable.
+
+{crowe: "Someone killed him with Resonance, Maren. In a Faraday-shielded room. And the Lattice logs show nothing — no hostile thoughts, no emotional spikes, no trace of violence whatsoever."}
+
+She lets that sink in.
+
+{crowe: "This should be impossible. I need someone who thinks sideways. That's you."}`,
+
+  choices: [
+    {
+      id: "accept_case",
+      text: "\"I'll take it. When do I start?\"",
+      effects: {
+        flags_add: ["accepted_case", "direct_acceptance"],
+        npc_trust: { crowe: 10 },
+        journal: "Accepted the Voss case from Director Crowe. CEO of Helios Collective found dead — killed by Resonance inside a Faraday-shielded room. Lattice logs show nothing."
+      },
+      leadsTo: "act1_scene01_accepted"
+    },
+    {
+      id: "ask_details",
+      text: "\"Why me? The Bureau has a hundred investigators.\"",
+      effects: {
+        flags_add: ["questioned_crowe"],
+        npc_trust: { crowe: -5 }
+      },
+      leadsTo: "act1_scene01_why_me"
+    },
+    {
+      id: "scan_crowe",
+      text: "[SCAN] Read Crowe's emotional state",
+      cost: { resonance: -15 },
+      effects: {
+        suspicion: 5,
+        flags_add: ["scanned_crowe"]
+      },
+      requires: { resonance_gte: 15 },
+      flavor: "*You open your senses, reaching past the wall of calm...*",
+      leadsTo: "act1_scene01_scan"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "started_game" },
+    { action: "give_item", value: "bureau_badge" }
+  ]
+},
+
+act1_scene01_why_me: {
+  title: "The Assignment",
+  art: "bureau-office.txt",
+  location: "Cognizance Bureau · Tier 5",
+  description: `Crowe's expression doesn't change. But something shifts behind her eyes — a flicker of calculation.
+
+{crowe: "Because you left the Bureau over a Shatterpoint case you thought was wrong. That tells me two things: you have a conscience, and you're not afraid to question the system."}
+
+She taps the datapad.
+
+{crowe: "Every investigator I have is Bureau-trained. Bureau-loyal. If this killing was done by someone inside our own infrastructure — and the clean Lattice logs suggest it was — I need someone who isn't afraid to follow the evidence wherever it leads."}
+
+A pause. Her voice drops slightly.
+
+{crowe: "Even if it leads back here."}`,
+
+  choices: [
+    {
+      id: "accept_after_questioning",
+      text: "\"Fair enough. I'm in.\"",
+      effects: {
+        flags_add: ["accepted_case"],
+        npc_trust: { crowe: 5 },
+        journal: "Accepted the Voss case. Crowe specifically wanted an outsider — someone willing to follow evidence even if it implicates the Bureau itself."
+      },
+      leadsTo: "act1_scene01_accepted"
+    },
+    {
+      id: "demand_terms",
+      text: "\"I work my way. No Bureau oversight. No handlers.\"",
+      effects: {
+        flags_add: ["accepted_case", "demanded_autonomy"],
+        npc_trust: { crowe: -10 },
+        integrity: 5,
+        journal: "Accepted the Voss case on my own terms. Crowe agreed to let me work independently."
+      },
+      leadsTo: "act1_scene01_accepted"
+    }
+  ]
+},
+
+act1_scene01_scan: {
+  title: "The Assignment",
+  art: "bureau-office.txt",
+  location: "Cognizance Bureau · Tier 5",
+  description: `*You reach past Crowe's wall of calm. For a moment, you feel only the usual controlled blankness of a skilled Weaver. But underneath — just for a heartbeat — something leaks through.*
+
+*Fear. Not for herself. Something bigger. And beneath the fear... anticipation. She's been waiting for this case. Maybe even waiting for you.*
+
+*The scan is brief. If she noticed, she gives no sign.*
+
+Crowe continues as though nothing happened.
+
+{crowe: "So. Will you take the case?"}`,
+
+  choices: [
+    {
+      id: "accept_after_scan",
+      text: "\"I'll take it. But Crowe — what aren't you telling me?\"",
+      effects: {
+        flags_add: ["accepted_case", "confronted_crowe_early"],
+        npc_trust: { crowe: -15 },
+        journal: "Scanned Crowe during the briefing. She's afraid of something — and she's been anticipating this case. She knows more than she's saying."
+      },
+      leadsTo: "act1_scene01_accepted"
+    },
+    {
+      id: "accept_quietly_after_scan",
+      text: "\"I'll take it.\" (Keep the scan results to yourself)",
+      effects: {
+        flags_add: ["accepted_case", "kept_scan_secret"],
+        npc_trust: { crowe: 5 },
+        integrity: -5,
+        journal: "Scanned Crowe during the briefing. Detected fear and anticipation beneath her calm. She knows more than she's saying. I kept this to myself."
+      },
+      leadsTo: "act1_scene01_accepted"
+    }
+  ]
+},
+
+act1_scene01_accepted: {
+  title: "The Assignment",
+  art: "bureau-office.txt",
+  location: "Cognizance Bureau · Tier 5",
+  description: `Crowe nods. If she's relieved, it doesn't show.
+
+{crowe: "The crime scene is sealed. Tier 9, Crown district. I've authorized your access. Talk to Voss's assistant — Talia Enke. She found the body."}
+
+She hands you a Bureau-issue Lattice scanner — a palm-sized device that amplifies Resonance readings.
+
+{crowe: "One more thing, Maren. Dax Rennick is also assigned to this case. Bureau side. Try not to step on each other's toes."}
+
+Rennick. Of course. The Bureau's golden boy. A Reader who treats every conversation like an interrogation.
+
+{crowe: "Report what you find. And Maren — be careful. Whoever did this was skilled enough to kill without a trace in the Lattice. They won't hesitate to do it again."}
+
+You step out into the corridor, scanner in hand. The Lattice hums around you — a thousand minds murmuring just below the threshold of hearing.
+
+Time to visit a dead man's penthouse.`,
+
+  choices: [
+    {
+      id: "go_to_crime_scene",
+      text: "Head to the crime scene — Voss's penthouse, Tier 9",
+      effects: {
+        flags_add: ["heading_to_penthouse"],
+        journal: "Heading to Voss's penthouse in Tier 9. Bureau-issue scanner acquired. Rennick is also on the case."
+      },
+      leadsTo: "act1_scene02"
+    }
+  ],
+  onEnter: [
+    { action: "give_item", value: "lattice_scanner" }
+  ]
+},
+
+// ═══════════════════════════════════════════
+// SCENE 2: THE CRIME SCENE
+// ═══════════════════════════════════════════
+
+act1_scene02: {
+  title: "The Voss Penthouse",
+  art: "penthouse.txt",
+  location: "Voss Penthouse · Tier 9 · Crown",
+  description: `Rain hammers the plasteel windows of Lior Voss's penthouse. The body has been removed, but the chalk outline remains — a human shape on imported marble flooring. Bureau barrier tape seals the room in amber light.
+
+The penthouse is immaculate. Expensive. The kind of wealth that doesn't need to prove itself. Original paintings. A liquor cabinet worth more than your annual salary. And everywhere, the faint hum of Faraday shielding — panels embedded in the walls, ceiling, and floor, designed to block all Lattice activity.
+
+In this room, no one should be able to read your thoughts. No one should be able to project. And no one should be able to kill with Resonance.
+
+Yet someone did.
+
+A Bureau tech nods at your badge and steps aside. The Lattice terminal near the desk still displays the log readout from the night of the murder — a flat, peaceful line. No emotional spikes. No hostile intent. According to the Lattice, Lior Voss died happy.
+
+Your scanner pulses faintly in your hand. Even through the Faraday shielding, you can feel something. A residue. A scream that was never heard.`,
+
+  ambient: [
+    "The rain on plasteel sounds like static. Like the Lattice trying to speak.",
+    "The Faraday panels hum with a faint, tooth-aching resonance.",
+    "The chalk outline stares up at you. Voss was a tall man."
+  ],
+
+  choices: [
+    {
+      id: "scan_crime_scene",
+      text: "[SCAN] Read the psychic residue in the room",
+      cost: { resonance: -15 },
+      effects: {
+        flags_add: ["scanned_crime_scene"],
+        suspicion: 3,
+        journal: "Scanned the crime scene. Detected psychic residue despite the Faraday shielding — terror, confusion, and something cold and surgical beneath it."
+      },
+      requires: { resonance_gte: 15 },
+      flavor: "*You close your eyes and open your senses...*",
+      leadsTo: "act1_scene02_scan"
+    },
+    {
+      id: "examine_terminal",
+      text: "Examine the Lattice terminal logs",
+      effects: {
+        flags_add: ["examined_lattice_logs"],
+        journal: "Examined Lattice logs from the night of the murder. They've been rewritten — not erased, but surgically replaced with false data."
+      },
+      leadsTo: "act1_scene02_terminal"
+    },
+    {
+      id: "search_effects",
+      text: "Search Voss's personal effects",
+      effects: {
+        flags_add: ["searched_voss_effects"],
+        give_item: ["voss_datakey"]
+      },
+      leadsTo: "act1_scene02_effects"
+    },
+    {
+      id: "examine_faraday",
+      text: "Inspect the Faraday shielding panels",
+      effects: {
+        flags_add: ["examined_faraday"]
+      },
+      leadsTo: "act1_scene02_faraday"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "visited_crime_scene" },
+    { action: "journal", value: "Arrived at the Voss penthouse. Faraday-shielded room. Chalk outline on the floor. Lattice logs show nothing abnormal." }
+  ]
+},
+
+act1_scene02_scan: {
+  title: "The Voss Penthouse",
+  art: "lattice-void.txt",
+  location: "Voss Penthouse · Lattice Scan",
+  description: `*The Faraday shielding resists your probe. It's like pushing through wet concrete. But your scanner amplifies the signal, and suddenly—*
+
+*A flash. Terror. Absolute, primal terror. Voss knew he was dying. He felt it coming — a pressure inside his skull, a tightening, like a fist closing around his thoughts.*
+
+*And beneath the terror, something else. Cold. Surgical. Precise. Not an emotion — a technique. Someone was in this room with him. Inside his mind. Taking him apart with the clinical detachment of a surgeon removing a tumor.*
+
+*The Lattice signature is wrong. It doesn't feel like a Reader. It doesn't feel like a Weaver. It feels like the Lattice itself — as if the network had reached out and squeezed.*
+
+*Then nothing. The residue fades. The Faraday panels hum.*
+
+You open your eyes. Your hands are shaking.
+
+That wasn't a murder. It was a *procedure*.`,
+
+  choices: [
+    {
+      id: "examine_terminal_after_scan",
+      text: "Examine the Lattice terminal logs",
+      effects: {
+        flags_add: ["examined_lattice_logs"],
+        journal: "Examined Lattice logs. They've been rewritten with false data."
+      },
+      requires: { not_flag: "examined_lattice_logs" },
+      leadsTo: "act1_scene02_terminal"
+    },
+    {
+      id: "search_effects_after_scan",
+      text: "Search Voss's personal effects",
+      effects: {
+        flags_add: ["searched_voss_effects"],
+        give_item: ["voss_datakey"]
+      },
+      requires: { not_flag: "searched_voss_effects" },
+      leadsTo: "act1_scene02_effects"
+    },
+    {
+      id: "examine_faraday_after_scan",
+      text: "Inspect the Faraday shielding",
+      effects: { flags_add: ["examined_faraday"] },
+      requires: { not_flag: "examined_faraday" },
+      leadsTo: "act1_scene02_faraday"
+    },
+    {
+      id: "leave_crime_scene",
+      text: "You've seen enough. Head to the Bureau to interview the assistant.",
+      effects: {
+        flags_add: ["left_crime_scene"],
+        journal: "Left the crime scene. Need to interview Talia Enke — she found the body."
+      },
+      leadsTo: "act1_scene03"
+    }
+  ]
+},
+
+act1_scene02_terminal: {
+  title: "The Voss Penthouse",
+  art: "penthouse.txt",
+  location: "Voss Penthouse · Lattice Terminal",
+  description: `You pull up the Lattice log on the terminal. The readout covers the twelve hours before Voss's death. It should show the usual ebb and flow of a human mind — spikes of focus, dips of relaxation, the jagged lines of dream sleep.
+
+Instead, it's a flat, gentle curve. Calm. Content. Even *happy*. According to this data, Lior Voss spent his last evening in a state of mild bliss, drifting peacefully into death.
+
+You've read enough Lattice logs to know what this looks like. It's not real. Real minds don't produce curves this smooth. This data has been *rewritten* — not erased, not corrupted, but surgically replaced with fabricated emotional patterns.
+
+Whoever did this had access to the Lattice infrastructure itself. Not just the penthouse terminal. The *network*.
+
+You copy the log data to your scanner.
+
+[SYSTEM: Acquired Lattice Log Copy]`,
+
+  choices: [
+    {
+      id: "scan_after_terminal",
+      text: "[SCAN] Read the psychic residue in the room",
+      cost: { resonance: -15 },
+      effects: {
+        flags_add: ["scanned_crime_scene"],
+        suspicion: 3,
+        journal: "Scanned the crime scene. Detected terror and a cold, surgical psychic technique."
+      },
+      requires: { resonance_gte: 15, not_flag: "scanned_crime_scene" },
+      leadsTo: "act1_scene02_scan"
+    },
+    {
+      id: "search_effects_after_terminal",
+      text: "Search Voss's personal effects",
+      effects: {
+        flags_add: ["searched_voss_effects"],
+        give_item: ["voss_datakey"]
+      },
+      requires: { not_flag: "searched_voss_effects" },
+      leadsTo: "act1_scene02_effects"
+    },
+    {
+      id: "leave_after_terminal",
+      text: "Head to the Bureau to interview the assistant.",
+      effects: {
+        flags_add: ["left_crime_scene"],
+        journal: "Left the crime scene. The Lattice logs were rewritten at the network level."
+      },
+      leadsTo: "act1_scene03"
+    }
+  ],
+  onEnter: [
+    { action: "give_item", value: "lattice_log_copy" }
+  ]
+},
+
+act1_scene02_effects: {
+  title: "The Voss Penthouse",
+  art: "penthouse.txt",
+  location: "Voss Penthouse · Personal Effects",
+  description: `Voss's personal effects have been catalogued by the Bureau tech, but they let you look. A high-end comm unit (locked). A half-empty glass of whiskey. Reading glasses. A leather-bound notebook — analog, no digital footprint.
+
+You flip through the notebook. Most of it is mundane — meeting notes, project timelines, a birthday reminder for someone named "L." But near the back, the handwriting changes. It becomes hurried. Cramped.
+
+One page catches your eye:
+
+*"The Thread isn't what they told us. Node Dynamics has been lying since the beginning. The backdoor is real. I have the proof. If I bring this to the Consortium — no. They're part of it. They have to be."*
+
+The next page is torn out. And the page after that:
+
+*"Meeting with E. tomorrow. If something happens to me, the datakey has everything."*
+
+You find the datakey in his jacket pocket. Small, encrypted, warm from the residual heat of a dead man's body.
+
+[SYSTEM: Acquired Voss Datakey]`,
+
+  choices: [
+    {
+      id: "scan_after_effects",
+      text: "[SCAN] Read the psychic residue",
+      cost: { resonance: -15 },
+      effects: {
+        flags_add: ["scanned_crime_scene"],
+        suspicion: 3,
+        journal: "Scanned the crime scene. Detected terror and a cold psychic technique."
+      },
+      requires: { resonance_gte: 15, not_flag: "scanned_crime_scene" },
+      leadsTo: "act1_scene02_scan"
+    },
+    {
+      id: "examine_terminal_after_effects",
+      text: "Examine the Lattice terminal logs",
+      effects: {
+        flags_add: ["examined_lattice_logs"],
+        journal: "Examined Lattice logs — rewritten with false data."
+      },
+      requires: { not_flag: "examined_lattice_logs" },
+      leadsTo: "act1_scene02_terminal"
+    },
+    {
+      id: "leave_after_effects",
+      text: "Head to the Bureau to interview the assistant.",
+      effects: {
+        flags_add: ["left_crime_scene"]
+      },
+      leadsTo: "act1_scene03"
+    }
+  ],
+  onEnter: [
+    { action: "give_item", value: "voss_datakey" },
+    { action: "journal", value: "Found Voss's notebook. He wrote about a 'backdoor' in the Lattice Thread — something Node Dynamics has been hiding. He had proof on an encrypted datakey." }
+  ]
+},
+
+act1_scene02_faraday: {
+  title: "The Voss Penthouse",
+  art: "penthouse.txt",
+  location: "Voss Penthouse · Faraday Panels",
+  description: `You run your scanner along the Faraday panels. Military-grade shielding — Vantablack Industries manufacture, top of the line. Every panel reads nominal. No breaches. No tampering. No weak points.
+
+The shielding is intact. Whatever killed Voss didn't come through the Faraday barrier from outside.
+
+You check the installation records on your scanner. The panels were installed eighteen months ago. Certified by... you squint at the manufacturer's data. Certified by a subsidiary of Node Dynamics.
+
+Interesting. Why would a biotech company be certifying Faraday shielding?
+
+You notice something else. One panel — behind the desk, closest to where Voss's body was found — has a slightly different power signature. Still within spec. But the waveform is subtly wrong, as if it's not just blocking Lattice signals but... routing them.
+
+[SYSTEM: Acquired Faraday Fragment (data)]`,
+
+  choices: [
+    {
+      id: "scan_after_faraday",
+      text: "[SCAN] Read the psychic residue",
+      cost: { resonance: -15 },
+      effects: {
+        flags_add: ["scanned_crime_scene"],
+        suspicion: 3,
+        journal: "Scanned the crime scene. Detected terror and a surgical psychic technique."
+      },
+      requires: { resonance_gte: 15, not_flag: "scanned_crime_scene" },
+      leadsTo: "act1_scene02_scan"
+    },
+    {
+      id: "leave_after_faraday",
+      text: "Head to the Bureau to interview the assistant.",
+      effects: {
+        flags_add: ["left_crime_scene"]
+      },
+      leadsTo: "act1_scene03"
+    }
+  ],
+  onEnter: [
+    { action: "give_item", value: "faraday_fragment" },
+    { action: "journal", value: "Faraday panels intact — no external breach. But one panel near the body has an unusual signature. Panels were certified by a Node Dynamics subsidiary. Why is a biotech company involved in Faraday shielding?" }
+  ]
+},
+
+// ═══════════════════════════════════════════
+// SCENE 3: THE ASSISTANT
+// ═══════════════════════════════════════════
+
+act1_scene03: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `Talia Enke sits across the table from you in Interview Room B-7. The one-way mirror gleams behind her. A Bureau recorder blinks red in the corner.
+
+She's mid-thirties, composed despite the grief. Professional. But her hands — clasped on the table — haven't stopped trembling since she sat down. She's an Echo, Class 3. You can feel her emotional state bleeding through without even trying: loss, guilt, fear. Not fear of you. Fear of something else.
+
+{talia: "I already told the Bureau investigators everything. I found him at 0600 when I came to deliver his morning briefing. The door was locked from inside. The Faraday panels were active. He was just... lying there."}
+
+Her voice catches.
+
+{talia: "The Lattice logs said he was at peace. Content. But I knew Lior. He hadn't been at peace in months. He was terrified of something. He wouldn't tell me what."}
+
+She looks at you directly. Her eyes are red-rimmed but fierce.
+
+{talia: "You're not Bureau. Not really. That's why I agreed to talk to you."}`,
+
+  choices: [
+    {
+      id: "probe_talia",
+      text: "[PROBE] Read Talia's surface thoughts",
+      cost: { resonance: -20 },
+      effects: {
+        flags_add: ["probed_talia"],
+        suspicion: 5,
+        npc_trust: { talia: -20 }
+      },
+      requires: { resonance_gte: 20 },
+      flavor: "*You reach out, gently, past her grief...*",
+      leadsTo: "act1_scene03_probe"
+    },
+    {
+      id: "sympathize_talia",
+      text: "\"I'm sorry about Voss. Take your time.\"",
+      effects: {
+        npc_trust: { talia: 15 },
+        flags_add: ["sympathized_with_talia"]
+      },
+      leadsTo: "act1_scene03_sympathize"
+    },
+    {
+      id: "press_talia",
+      text: "\"What was he afraid of? Be specific.\"",
+      effects: {
+        npc_trust: { talia: -5 },
+        flags_add: ["pressed_talia"]
+      },
+      leadsTo: "act1_scene03_press"
+    },
+    {
+      id: "show_notebook",
+      text: "\"He wrote about a 'backdoor.' Do you know what that means?\"",
+      requires: { has_flag: "searched_voss_effects" },
+      effects: {
+        npc_trust: { talia: 10 },
+        flags_add: ["showed_talia_notebook"]
+      },
+      leadsTo: "act1_scene03_notebook"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "met_talia" },
+    { action: "journal", value: "Interviewing Talia Enke, Voss's assistant. Echo-class. She says Voss was terrified of something in the weeks before his death." }
+  ]
+},
+
+act1_scene03_probe: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `*You slide past her emotional turbulence — the grief, the guilt, the fear — and find her surface thoughts. They're fragmented, racing:*
+
+*"...don't tell them about the meeting... Lior said not to trust anyone from the Bureau... but Maren isn't really Bureau, are they... the datakey, does this one know about the datakey... E. will know what to do... I should have warned him, should have—"*
+
+*Talia stiffens. Her eyes snap to yours. She felt it. Not precisely — Echoes can't pinpoint a probe — but she knows something touched her thoughts.*
+
+{talia: "Did you just..."}
+
+Her expression hardens.
+
+{talia: "I came here voluntarily. I came here because I thought you might actually help. And you're *reading* me?"}
+
+She stands up, chair scraping.
+
+{talia: "This interview is over."}`,
+
+  choices: [
+    {
+      id: "apologize_talia",
+      text: "\"I'm sorry. I shouldn't have done that. Please — sit down.\"",
+      effects: {
+        npc_trust: { talia: 5 },
+        integrity: 5,
+        flags_add: ["apologized_to_talia"]
+      },
+      leadsTo: "act1_scene03_apologize"
+    },
+    {
+      id: "press_after_probe",
+      text: "\"Who is 'E.'? And what meeting are you hiding?\"",
+      effects: {
+        npc_trust: { talia: -30 },
+        suspicion: 5,
+        flags_add: ["confronted_talia_thoughts"]
+      },
+      leadsTo: "act1_scene03_confronted"
+    }
+  ]
+},
+
+act1_scene03_sympathize: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `Something in Talia's posture softens. Not much — she's too controlled for that — but enough.
+
+{talia: "Thank you. Most investigators don't bother with kindness."}
+
+She takes a breath.
+
+{talia: "Lior was... he was a good man. Not a saint — he was a CEO, he made hard decisions. But he cared about people. About what the Consortium was doing to the lower tiers. He was pushing for reform."}
+
+She pauses. Deciding.
+
+{talia: "Three weeks ago, he came into the office late. Shaken. He said he'd found something — something about Node Dynamics. About the Lattice Thread itself. He said it changed everything."}
+
+{talia: "He wouldn't tell me the details. He said it was safer if I didn't know. But he was meeting with someone. Someone he called 'E.' I don't know who that is."}
+
+She looks at the recorder in the corner.
+
+{talia: "That's everything I know. Please... find who did this to him."}`,
+
+  choices: [
+    {
+      id: "ask_about_e",
+      text: "\"Any idea who 'E.' might be? A name, a company, anything?\"",
+      effects: {
+        npc_trust: { talia: 5 },
+        flags_add: ["asked_about_e"]
+      },
+      leadsTo: "act1_scene03_about_e"
+    },
+    {
+      id: "ask_about_node",
+      text: "\"What do you know about Node Dynamics?\"",
+      effects: {
+        flags_add: ["asked_talia_about_node"]
+      },
+      leadsTo: "act1_scene03_about_node"
+    },
+    {
+      id: "thank_and_leave",
+      text: "\"Thank you, Talia. I'll find who did this.\"",
+      effects: {
+        npc_trust: { talia: 10 },
+        flags_add: ["talia_interview_complete"],
+        journal: "Talia says Voss found something about Node Dynamics and the Lattice Thread three weeks ago. He was meeting with someone called 'E.' She doesn't know more."
+      },
+      leadsTo: "act1_scene04"
+    }
+  ]
+},
+
+act1_scene03_press: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `Talia's jaw tightens.
+
+{talia: "Specific. You want me to be *specific* about a dead man's fears while his body is still warm."}
+
+A flash of anger bleeds through her Echo field — hot and bright.
+
+{talia: "Fine. Three weeks ago he found something. Something about the Lattice. About Node Dynamics. He said the Thread wasn't just a communication tool — that there was something hidden in its architecture. A backdoor."}
+
+{talia: "He was meeting with someone about it. Someone called 'E.' That's all I know. He kept me out of it. He said if the wrong people found out what he had, they'd—"}
+
+She stops. Swallows.
+
+{talia: "They'd do exactly what they did."}`,
+
+  choices: [
+    {
+      id: "ask_about_e_press",
+      text: "\"Who is 'E.'?\"",
+      effects: {
+        flags_add: ["asked_about_e"]
+      },
+      leadsTo: "act1_scene03_about_e"
+    },
+    {
+      id: "leave_after_press",
+      text: "\"That's enough for now. I'll be in touch.\"",
+      effects: {
+        flags_add: ["talia_interview_complete"],
+        journal: "Talia confirmed Voss found a 'backdoor' in the Lattice Thread connected to Node Dynamics. He was meeting someone called 'E.' about it."
+      },
+      leadsTo: "act1_scene04"
+    }
+  ]
+},
+
+act1_scene03_notebook: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `Talia's eyes widen when you mention the backdoor.
+
+{talia: "You found his notebook? Then you know. He wasn't paranoid. He was *right*."}
+
+She leans forward, lowering her voice.
+
+{talia: "He told me the Lattice Thread — the implant in every augmented person in the Spire — has a hidden channel. Node Dynamics built it in from the beginning. It lets them read, edit, or erase neural data without detection. Without consent. Without anyone knowing."}
+
+{talia: "That's how they killed him, isn't it? They used the Thread itself."}
+
+Her hands are shaking harder now.
+
+{talia: "He had proof. On his datakey. He was going to take it to someone he trusted. Someone called 'E.' I don't know who that is — he wouldn't tell me. To protect me, he said."}
+
+She looks at you with fierce intensity.
+
+{talia: "If you have that datakey, you need to decrypt it. And you need to be very, very careful about who you trust."}`,
+
+  choices: [
+    {
+      id: "ask_decrypt",
+      text: "\"Do you know how to decrypt the datakey?\"",
+      effects: {
+        npc_trust: { talia: 10 },
+        flags_add: ["asked_about_decrypt"]
+      },
+      leadsTo: "act1_scene03_decrypt"
+    },
+    {
+      id: "leave_after_notebook",
+      text: "\"I'll protect you. And I'll find who did this.\"",
+      effects: {
+        npc_trust: { talia: 15 },
+        flags_add: ["talia_interview_complete", "promised_protection"],
+        journal: "Talia confirmed the backdoor — Node Dynamics can read/edit/erase neural data through the Lattice Thread. Voss had proof on his datakey. He was taking it to 'E.'"
+      },
+      leadsTo: "act1_scene04"
+    }
+  ]
+},
+
+act1_scene03_about_e: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `{talia: "I truly don't know. Lior was careful. He used analog only — handwritten notes, no digital trail. He said the Lattice itself was compromised and he didn't trust any networked device."}
+
+She pauses, thinking.
+
+{talia: "But I overheard one call. Just a fragment. He said something about 'the lower tiers' and 'someone who got out of Node Dynamics.' That's all I have."}
+
+{talia: "Whoever 'E.' is, Lior trusted them with his life. And... that didn't save him."}`,
+
+  choices: [
+    {
+      id: "leave_after_e",
+      text: "\"Thank you, Talia. This helps. I'll be in touch.\"",
+      effects: {
+        npc_trust: { talia: 10 },
+        flags_add: ["talia_interview_complete"],
+        journal: "Talia doesn't know who 'E.' is, but overheard Voss mention 'the lower tiers' and 'someone who got out of Node Dynamics.' The lower tiers and Node Dynamics — two leads."
+      },
+      leadsTo: "act1_scene04"
+    }
+  ]
+},
+
+act1_scene03_about_node: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `{talia: "Only what everyone knows. They created the Lattice Thread forty years ago. They control the implant infrastructure. Every augmented person in the Spire has Node Dynamics hardware in their skull."}
+
+She shakes her head.
+
+{talia: "Lior always said they were too quiet for a company with that much power. Seven hundred million people wearing their technology, and they barely make the news. He thought they were hiding something."}
+
+{talia: "I guess he was right."}`,
+
+  choices: [
+    {
+      id: "leave_after_node",
+      text: "\"Thank you. I'll look into Node Dynamics.\"",
+      effects: {
+        npc_trust: { talia: 5 },
+        flags_add: ["talia_interview_complete"],
+        journal: "Node Dynamics created the Lattice Thread. 700 million augmented people carry their tech. Voss thought they were hiding something. He was right."
+      },
+      leadsTo: "act1_scene04"
+    }
+  ]
+},
+
+act1_scene03_apologize: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `Talia stands rigid for a long moment. Then, slowly, she sits back down.
+
+{talia: "Lior always said Readers can't help themselves. Like an itch they have to scratch."}
+
+A ghost of a sad smile.
+
+{talia: "Fine. I'll tell you what I know. Not because I trust you — but because Lior deserves justice, and you might be the only person willing to find it."}
+
+She takes a breath.
+
+{talia: "Three weeks ago he found something about Node Dynamics. A backdoor in the Lattice Thread. He was taking proof to someone he called 'E.' That's all I know."}`,
+
+  choices: [
+    {
+      id: "leave_after_apologize",
+      text: "\"Thank you. I won't breach your trust again.\"",
+      effects: {
+        npc_trust: { talia: 10 },
+        integrity: 5,
+        flags_add: ["talia_interview_complete"],
+        journal: "Talia forgave the probe. Confirmed Voss found a backdoor in the Lattice Thread. He was meeting someone called 'E.' with proof."
+      },
+      leadsTo: "act1_scene04"
+    }
+  ]
+},
+
+act1_scene03_confronted: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `Talia goes white. Then red.
+
+{talia: "You read my thoughts and you're *throwing them back at me*?"}
+
+She stands, backing away from the table.
+
+{talia: "This interview is over. I came here of my own free will and I'm leaving the same way. You want to arrest me? Go ahead. But you'll get nothing else from me."}
+
+She's out the door before you can respond. The recorder blinks indifferently.
+
+Well. That went well. You got a name — "E." — and confirmation that there was a meeting Talia is protecting. But you've burned that bridge, at least for now.`,
+
+  choices: [
+    {
+      id: "leave_after_confronted",
+      text: "Move on. Head to the Bureau Archives.",
+      effects: {
+        flags_add: ["talia_interview_complete", "burned_talia"],
+        integrity: -10,
+        journal: "Talia walked out after I confronted her with her own thoughts. Got a reference to 'E.' and a hidden meeting, but destroyed any trust."
+      },
+      leadsTo: "act1_scene04"
+    }
+  ]
+},
+
+act1_scene03_decrypt: {
+  title: "The Assistant",
+  art: "interrogation.txt",
+  location: "Bureau Interview Room · B-7",
+  description: `{talia: "I don't have the encryption key. Lior was the only one. But..."}
+
+She hesitates.
+
+{talia: "There might be someone who can help. In the lower tiers. Lior mentioned a name once — Rook. A Threadbare who deals in Quiet tech. Used to work for Node Dynamics, if you can believe that."}
+
+{talia: "If anyone can crack Node Dynamics encryption, it's someone who helped build it."}
+
+She stands, smoothing her jacket. The interview is over.
+
+{talia: "Be careful with that datakey, Maren. People died for what's on it."}`,
+
+  choices: [
+    {
+      id: "leave_after_decrypt",
+      text: "\"Rook. Lower tiers. I'll find them.\"",
+      effects: {
+        npc_trust: { talia: 10 },
+        flags_add: ["talia_interview_complete", "knows_about_rook_from_talia"],
+        journal: "Talia mentioned someone called 'Rook' in the lower tiers — a Threadbare, former Node Dynamics, deals in Quiet tech. May be able to decrypt the datakey."
+      },
+      leadsTo: "act1_scene04"
+    }
+  ]
+},
+
+// ═══════════════════════════════════════════
+// SCENE 4: THE BUREAU ARCHIVES
+// ═══════════════════════════════════════════
+
+act1_scene04: {
+  title: "The Bureau Archives",
+  art: "archives.txt",
+  location: "Bureau Archives · Sub-Level 2",
+  description: `The Bureau Archives occupy two sub-levels beneath the main building. Rows of data terminals hum in the dim light, each one a portal into the Consortium's collected intelligence on every augmented citizen in the Spire.
+
+The Lattice is dense down here — hundreds of minds working, searching, cross-referencing. You feel them as a low, constant pressure. It makes it harder to think clearly, but it also provides cover. In this much psychic noise, no one will notice your searches.
+
+You have access to Bureau databases with your badge. Time to dig into the background.
+
+What do you research first?`,
+
+  choices: [
+    {
+      id: "research_voss",
+      text: "Search for Lior Voss's enemies and recent activities",
+      effects: {
+        flags_add: ["researched_voss"]
+      },
+      leadsTo: "act1_scene04_voss"
+    },
+    {
+      id: "research_node",
+      text: "Pull files on Node Dynamics",
+      effects: {
+        flags_add: ["researched_node"],
+        suspicion: 5
+      },
+      leadsTo: "act1_scene04_node"
+    },
+    {
+      id: "research_null_freq",
+      text: "Search for 'Null Frequency' in the Bureau database",
+      effects: {
+        flags_add: ["researched_null_freq"],
+        suspicion: 3
+      },
+      leadsTo: "act1_scene04_null_freq"
+    },
+    {
+      id: "research_faraday",
+      text: "Look up the Faraday panel certification records",
+      requires: { has_flag: "examined_faraday" },
+      effects: {
+        flags_add: ["researched_faraday"]
+      },
+      leadsTo: "act1_scene04_faraday"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "visited_archives" },
+    { action: "journal", value: "In the Bureau Archives. Time to dig into the background of this case." }
+  ]
+},
+
+act1_scene04_voss: {
+  title: "The Bureau Archives",
+  art: "archives.txt",
+  location: "Bureau Archives · Voss File",
+  description: `Lior Voss's file is thick. Thirty years of corporate leadership, starting as an engineer at Helios and climbing to CEO. Clean record. No psychic violations. Well-liked within the Consortium — except by Vantablack Industries, who lost three major energy contracts to Helios under his leadership.
+
+Recent activity flags: Voss had been making quiet inquiries about Lattice Thread infrastructure for the past two months. He'd requested access to the original Lattice Thread specifications — a request that was denied by Node Dynamics on grounds of proprietary technology.
+
+He also made six visits to the lower tiers in the past three weeks. Unusual for a Crown-tier CEO. The Bureau has no surveillance data on these visits — the lower tiers are largely outside Lattice coverage.
+
+And one more thing: Voss had filed a formal request with the Consortium Ethics Board three days before his death. The subject line was classified, but the routing code marks it as "Threat to Public Safety — Systemic."
+
+Someone killed him before that filing could be reviewed.`,
+
+  choices: [
+    {
+      id: "research_node_after_voss",
+      text: "Pull files on Node Dynamics",
+      requires: { not_flag: "researched_node" },
+      effects: { flags_add: ["researched_node"], suspicion: 5 },
+      leadsTo: "act1_scene04_node"
+    },
+    {
+      id: "research_null_after_voss",
+      text: "Search for 'Null Frequency'",
+      requires: { not_flag: "researched_null_freq" },
+      effects: { flags_add: ["researched_null_freq"], suspicion: 3 },
+      leadsTo: "act1_scene04_null_freq"
+    },
+    {
+      id: "leave_archives",
+      text: "You have enough. Leave the Archives.",
+      effects: {
+        flags_add: ["archives_complete"],
+        journal: "Voss was investigating the Lattice Thread. He filed a 'Threat to Public Safety' report 3 days before his death. He visited the lower tiers six times in three weeks."
+      },
+      leadsTo: "act1_scene05"
+    }
+  ]
+},
+
+act1_scene04_node: {
+  title: "The Bureau Archives",
+  art: "archives.txt",
+  location: "Bureau Archives · Node Dynamics File",
+  description: `Node Dynamics. Founded 2147 by Dr. Elara Vasik. Developed the Lattice Thread neural implant. Holds the patent on every variant of Thread technology in use across the Spire.
+
+The public file is clean. Too clean. A company this large, this influential, with this few regulatory incidents? You've investigated enough corporations to know what that smells like — not innocence, but very good lawyers.
+
+One detail catches your eye: Node Dynamics operates a research facility in the deep Substrate — Tier 0, below the official city limits. It's listed as a "legacy data center" with minimal staff. But the power draw from that facility is enormous. Whatever they're running down there, it's not a data center.
+
+The file also lists Node Dynamics' current Director of Operations: **Silas Thane**. Weaver, Class 1. One of fewer than a hundred in the Spire. His Bureau file is heavily redacted — thick black bars where his history should be.
+
+[WARNING: Your search on Node Dynamics has been flagged by Bureau InfoSec. This is routine for corporate intelligence queries.]
+
+Or so they tell you.`,
+
+  choices: [
+    {
+      id: "research_voss_after_node",
+      text: "Search for Voss's enemies and activities",
+      requires: { not_flag: "researched_voss" },
+      effects: { flags_add: ["researched_voss"] },
+      leadsTo: "act1_scene04_voss"
+    },
+    {
+      id: "research_null_after_node",
+      text: "Search for 'Null Frequency'",
+      requires: { not_flag: "researched_null_freq" },
+      effects: { flags_add: ["researched_null_freq"], suspicion: 3 },
+      leadsTo: "act1_scene04_null_freq"
+    },
+    {
+      id: "leave_archives_after_node",
+      text: "Leave the Archives before your searches draw more attention.",
+      effects: {
+        flags_add: ["archives_complete"],
+        journal: "Node Dynamics file is suspiciously clean. They have a massive facility in Tier 0. Their Director of Operations — Silas Thane — is a Class 1 Weaver with a redacted file."
+      },
+      leadsTo: "act1_scene05"
+    }
+  ]
+},
+
+act1_scene04_null_freq: {
+  title: "The Bureau Archives",
+  art: "archives.txt",
+  location: "Bureau Archives · Classified Search",
+  description: `You enter "Null Frequency" into the Bureau database. The terminal pauses. Longer than it should.
+
+Then it returns a single result: a theoretical research paper, published nine years ago in the Journal of Applied Psychometrics. The author's name has been redacted. The abstract reads:
+
+*"This paper proposes the theoretical existence of a 'Null Frequency' — a specific modulation pattern that, when applied to a Lattice Thread implant, renders the wearer's neural activity invisible to standard Resonance detection. Unlike the Quiet technique (which masks thoughts behind a mental loop), Null Frequency would eliminate the Lattice signature entirely, making the subject appear Threadbare to all scanning methods."*
+
+*"The implications are significant. A Null Frequency-equipped individual could commit any act — including psychic violence — without detection. The Lattice, which society depends on for security and trust, would be rendered meaningless."*
+
+*"The author recommends immediate classification and suppression of this research."*
+
+The paper was classified immediately after publication. No follow-up research exists in the Bureau database.
+
+But someone turned theory into practice. Someone killed Lior Voss without leaving a trace.`,
+
+  choices: [
+    {
+      id: "research_voss_after_null",
+      text: "Search for Voss's background",
+      requires: { not_flag: "researched_voss" },
+      effects: { flags_add: ["researched_voss"] },
+      leadsTo: "act1_scene04_voss"
+    },
+    {
+      id: "research_node_after_null",
+      text: "Pull files on Node Dynamics",
+      requires: { not_flag: "researched_node" },
+      effects: { flags_add: ["researched_node"], suspicion: 5 },
+      leadsTo: "act1_scene04_node"
+    },
+    {
+      id: "leave_archives_after_null",
+      text: "Leave the Archives. You need to think.",
+      effects: {
+        flags_add: ["archives_complete"],
+        journal: "Found a classified paper on 'Null Frequency' — a way to make a Thread-user invisible to all scanning. Published 9 years ago, immediately suppressed. Author redacted. Someone turned this theory into a murder weapon."
+      },
+      leadsTo: "act1_scene05"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "knows_null_frequency" },
+    { action: "journal", value: "Discovered 'Null Frequency' — a theoretical method to make Lattice Thread users invisible to scanning. Paper was classified and suppressed." }
+  ]
+},
+
+act1_scene04_faraday: {
+  title: "The Bureau Archives",
+  art: "archives.txt",
+  location: "Bureau Archives · Faraday Records",
+  description: `You pull the certification records for Voss's Faraday panels. Standard Vantablack Industries military-grade shielding, installed eighteen months ago. But the certification was performed by Lattice Dynamics Ltd. — which, according to corporate registry records, is a wholly-owned subsidiary of Node Dynamics.
+
+Why is Node Dynamics certifying Faraday shielding? Their business is Lattice Threads — the opposite of Faraday technology. One creates connections. The other blocks them.
+
+Unless the certification wasn't just an inspection. Unless it was an installation.
+
+You check the panel specifications against the standard model. The power draw on Panel 7 — the one near Voss's body — is 3% higher than spec. Within tolerance, but consistent with an additional component. Something embedded in the shielding.
+
+A component that doesn't block Lattice signals. It *channels* them.`,
+
+  choices: [
+    {
+      id: "leave_after_faraday_research",
+      text: "Leave the Archives. The picture is getting clearer.",
+      effects: {
+        flags_add: ["archives_complete"],
+        journal: "Confirmed: Voss's Faraday panels were certified by a Node Dynamics subsidiary. Panel 7 has an anomalous component — it channels Lattice signals instead of blocking them. The 'shielded room' had a back door."
+      },
+      leadsTo: "act1_scene05"
+    }
+  ]
+},
+
+// ═══════════════════════════════════════════
+// SCENE 5: THE RIVAL
+// ═══════════════════════════════════════════
+
+act1_scene05: {
+  title: "The Rival",
+  art: "corridor.txt",
+  location: "Bureau Corridor · Tier 5",
+  description: `You're heading for the lift when a familiar Lattice presence hits you like a wall. Aggressive. Probing. The psychic equivalent of someone cracking their knuckles.
+
+Dax Rennick steps out of a side office and into your path. Broad-shouldered, smirking, radiating casual dominance. His Reader abilities are unsubtle — he's already skimming your surface thoughts, not even trying to hide it.
+
+{rennick: "Maren. Heard Crowe pulled you out of retirement for this one. Must be desperate."}
+
+He leans against the wall, blocking the corridor.
+
+{rennick: "I've been on the Voss case since this morning. Got the crime scene, the autopsy, the works. And now I hear you've been interviewing *my* witnesses?"}
+
+His Lattice presence pushes harder. He's testing you. Trying to read what you know.
+
+{rennick: "So here's how this works. You share what you've got, I share what I've got. Or you stay out of my way. Your choice."}`,
+
+  choices: [
+    {
+      id: "quiet_rennick",
+      text: "[QUIET] Raise your mental shields",
+      cost: { resonance: -10 },
+      effects: {
+        flags_add: ["used_quiet_on_rennick"],
+        quietLevel: 30
+      },
+      requires: { resonance_gte: 10 },
+      flavor: "*You activate a Quiet loop — a spinning pattern that masks your thoughts behind white noise.*",
+      leadsTo: "act1_scene05_quiet"
+    },
+    {
+      id: "share_with_rennick",
+      text: "\"Fine. I'll share. What do you have?\"",
+      effects: {
+        npc_trust: { rennick: 15 },
+        suspicion: 5,
+        flags_add: ["shared_with_rennick"]
+      },
+      leadsTo: "act1_scene05_share"
+    },
+    {
+      id: "deflect_rennick",
+      text: "\"I just got here, Rennick. I don't have anything yet.\"",
+      effects: {
+        npc_trust: { rennick: -10 },
+        flags_add: ["lied_to_rennick"],
+        integrity: -5
+      },
+      leadsTo: "act1_scene05_deflect"
+    },
+    {
+      id: "probe_rennick",
+      text: "[PROBE] Turn the tables — read his surface thoughts",
+      cost: { resonance: -20 },
+      effects: {
+        flags_add: ["probed_rennick"],
+        suspicion: 8,
+        npc_trust: { rennick: -25 }
+      },
+      requires: { resonance_gte: 20 },
+      leadsTo: "act1_scene05_probe"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "met_rennick" },
+    { action: "journal", value: "Encountered Dax Rennick in the Bureau corridor. He's also on the Voss case. Aggressive — tried to read me immediately." }
+  ]
+},
+
+act1_scene05_quiet: {
+  title: "The Rival",
+  art: "corridor.txt",
+  location: "Bureau Corridor · Tier 5",
+  description: `*The Quiet loop spins up — a wall of mental static between your thoughts and Rennick's probe. His Lattice presence hits it and slides off like water on glass.*
+
+Rennick's smirk flickers. He felt the shield go up. He knows what it means — you have something worth hiding.
+
+{rennick: "Quiet, huh? Interesting. The old man taught you that, or did you pick it up in the lower tiers?"}
+
+He straightens up, reassessing you.
+
+{rennick: "Fine. Keep your secrets. But I'll tell you something for free: the autopsy shows Voss's neural pathways were burned out in a specific pattern. Not random. Not like a stroke. Like someone drew a map of his brain and erased the roads, one by one."}
+
+He taps his temple.
+
+{rennick: "That's not a murder, Maren. That's *surgery*. And there's maybe five people in the Spire with the skill to do it."}
+
+He pushes off the wall and walks past you.
+
+{rennick: "All of them are Weavers. All of them are Bureau-registered. Think about that."}`,
+
+  choices: [
+    {
+      id: "follow_up_weavers",
+      text: "\"Which five Weavers? Give me names.\"",
+      effects: {
+        npc_trust: { rennick: 5 },
+        flags_add: ["asked_rennick_for_names"]
+      },
+      leadsTo: "act1_scene05_names"
+    },
+    {
+      id: "let_rennick_go",
+      text: "Let him go. You have what you need.",
+      effects: {
+        flags_add: ["rennick_encounter_complete"],
+        journal: "Rennick revealed the autopsy results: Voss's neural pathways were surgically destroyed. Only a Class 1 Weaver could do this. Maybe five people in the Spire have the skill."
+      },
+      leadsTo: "act1_scene06"
+    }
+  ]
+},
+
+act1_scene05_share: {
+  title: "The Rival",
+  art: "corridor.txt",
+  location: "Bureau Corridor · Tier 5",
+  description: `You give Rennick the broad strokes — the clean Lattice logs, the Faraday anomaly, Talia's account of Voss's fear. You keep the datakey and the notebook details to yourself.
+
+Rennick listens, nodding. His probing eases off — a professional courtesy when someone cooperates.
+
+{rennick: "Good. That lines up with what I've got. The autopsy shows surgical neural destruction — specific pathways burned out in sequence. Not a psychic attack. More like a *procedure*."}
+
+He pauses.
+
+{rennick: "Only a Class 1 Weaver could do that. And there are only five in the Spire with the precision required. Crowe is one of them, by the way."}
+
+He lets that land.
+
+{rennick: "I'm not saying she did it. I'm saying don't trust anyone on this case, Maren. Including me."}
+
+A surprisingly honest moment from the Bureau's golden boy.`,
+
+  choices: [
+    {
+      id: "ask_about_five_share",
+      text: "\"Who are the other four Weavers?\"",
+      effects: {
+        flags_add: ["asked_rennick_for_names"]
+      },
+      leadsTo: "act1_scene05_names"
+    },
+    {
+      id: "leave_after_share",
+      text: "\"Thanks for the tip. Watch your back, Rennick.\"",
+      effects: {
+        flags_add: ["rennick_encounter_complete"],
+        journal: "Shared info with Rennick. He confirmed surgical neural destruction. Only 5 Weavers could do it — including Director Crowe."
+      },
+      leadsTo: "act1_scene06"
+    }
+  ]
+},
+
+act1_scene05_deflect: {
+  title: "The Rival",
+  art: "corridor.txt",
+  location: "Bureau Corridor · Tier 5",
+  description: `Rennick's eyes narrow. His Lattice presence surges — he's pushing harder against your thoughts, trying to catch the lie.
+
+{rennick: "Right. You've got nothing. That's why you were in the Archives for forty minutes."}
+
+He shakes his head.
+
+{rennick: "Play it that way if you want, Maren. But here's something you should know: the autopsy shows surgical neural destruction. Precision work. Only a Class 1 Weaver could pull it off."}
+
+He steps closer.
+
+{rennick: "There are five Weavers in this city with that kind of skill. I'd tell you their names, but since you've got *nothing*..."}
+
+He walks away. Over his shoulder:
+
+{rennick: "Good luck, Maren. You're going to need it."}`,
+
+  choices: [
+    {
+      id: "leave_after_deflect",
+      text: "Let him go. Head to the lower tiers.",
+      effects: {
+        flags_add: ["rennick_encounter_complete"],
+        journal: "Rennick saw through my deflection. He confirmed autopsy shows surgical neural destruction — Class 1 Weaver work. He knows the suspect list but didn't share."
+      },
+      leadsTo: "act1_scene06"
+    }
+  ]
+},
+
+act1_scene05_probe: {
+  title: "The Rival",
+  art: "corridor.txt",
+  location: "Bureau Corridor · Tier 5",
+  description: `*You push back against his probe with one of your own — a sharp, precise read aimed at his surface thoughts. Rennick's eyes go wide. He didn't expect that.*
+
+*His thoughts flash past: irritation, then grudging respect, then — something else. A fragment he can't quite suppress:*
+
+*"...the Director said to keep Maren away from the Thane file... why is Crowe protecting..."*
+
+*Then Rennick slams his own Quiet up — hard. He's good. The wall is solid.*
+
+{rennick: "Did you just *probe* me? In the Bureau? In the *corridor*?"}
+
+His face is red. Not from embarrassment — from fury.
+
+{rennick: "That's a Class 2 violation, Maren. I could have your badge. What's left of it."}
+
+He straightens his jacket.
+
+{rennick: "Stay out of my way. We're done sharing."}
+
+He stalks off. But you got something: Crowe told Rennick to keep you away from someone named Thane.`,
+
+  choices: [
+    {
+      id: "leave_after_probe_rennick",
+      text: "Move on. You've made an enemy — but you have a name. Thane.",
+      effects: {
+        flags_add: ["rennick_encounter_complete", "knows_thane_name"],
+        integrity: -5,
+        journal: "Probed Rennick. Caught a fragment: Crowe told him to keep me away from 'the Thane file.' Silas Thane — Node Dynamics. Crowe is protecting something."
+      },
+      leadsTo: "act1_scene06"
+    }
+  ]
+},
+
+act1_scene05_names: {
+  title: "The Rival",
+  art: "corridor.txt",
+  location: "Bureau Corridor · Tier 5",
+  description: `Rennick hesitates. Then shrugs.
+
+{rennick: "Fine. The five Class 1 Weavers with surgical precision:"}
+
+{rennick: "Director Senna Crowe. Bureau. You know her."}
+{rennick: "Yasha Petrov. Retired. Lives off-Spire. Hasn't used Resonance in a decade."}
+{rennick: "Dr. Mira Osei. Ascendant Group's neural research division. Academic."}
+{rennick: "Councilor Tariq Vane. Consortium ethics board. Politician. Unlikely."}
+{rennick: "And Silas Thane. Node Dynamics, Director of Operations. The most powerful Weaver I've ever encountered."}
+
+He pauses.
+
+{rennick: "Thane's file is redacted six ways from Sunday. Bureau can't touch him — Node Dynamics has some kind of arrangement with the Consortium. He's untouchable."}
+
+{rennick: "If I were betting, Maren? I'd look at Thane. But you didn't hear that from me."}`,
+
+  choices: [
+    {
+      id: "leave_after_names",
+      text: "\"Silas Thane. I'll remember that.\"",
+      effects: {
+        flags_add: ["rennick_encounter_complete", "knows_thane_name", "knows_weaver_list"],
+        journal: "Rennick gave me the five Weavers capable of the murder: Crowe, Petrov (retired), Osei (academic), Vane (politician), and Silas Thane (Node Dynamics). Thane's file is redacted. Rennick thinks he's the one."
+      },
+      leadsTo: "act1_scene06"
+    }
+  ]
+},
+
+// ═══════════════════════════════════════════
+// SCENE 6: THE LOWER TIERS
+// ═══════════════════════════════════════════
+
+act1_scene06: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Tier 1 · Threadbare District",
+  description: `The descent from Tier 5 to Tier 1 takes twenty minutes on the cargo lift. With each level, the Spire changes. The clean lines of the upper tiers give way to exposed conduit, jury-rigged lighting, and the constant drip of recycled water.
+
+Down here, the Lattice thins to almost nothing. The neural density is too low — too few augmented minds to sustain the network. The Threadbare live in this psychic silence by choice or by poverty. No implants. No Resonance. No one reading their thoughts.
+
+For the first time in days, your head feels *quiet*. The constant background hum of the Lattice is gone. It's unsettling. Like going deaf.
+
+Neon signs flicker in the perpetual twilight. Stim shops. Pawn dealers. A clinic with a blinking red cross. And at the end of a narrow alley, a door marked with a symbol you recognize from Bureau files on the Quiet trade — a closed eye with a line through it.
+
+Rook's place. If the rumors are right.`,
+
+  choices: [
+    {
+      id: "knock_rook",
+      text: "Knock on the door with the closed-eye symbol",
+      effects: {
+        flags_add: ["approached_rook"]
+      },
+      leadsTo: "act1_scene06_rook"
+    },
+    {
+      id: "stim_shop",
+      text: "Visit the stim shop first — top up your Resonance",
+      effects: {
+        resonance: 20,
+        flags_add: ["visited_stim_shop"],
+        journal: "Bought a Resonance booster at a Substrate stim shop. Questionable quality."
+      },
+      leadsTo: "act1_scene06_stim"
+    },
+    {
+      id: "observe_area",
+      text: "Observe the area first. Look for surveillance or tails.",
+      effects: {
+        flags_add: ["observed_lower_tiers"],
+        suspicion: -5
+      },
+      leadsTo: "act1_scene06_observe"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "visited_lower_tiers" },
+    { action: "journal", value: "Descended to the Substrate — Tier 1. The Lattice barely reaches here. Looking for a Quiet dealer called Rook." }
+  ]
+},
+
+act1_scene06_stim: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Stim Shop",
+  description: `The stim shop is a converted storage unit. A Threadbare woman with cybernetic eyes sells you a Resonance booster — a yellow ampoule pressed against your wrist. The effect is immediate: a rush of clarity, the Lattice brightening at the edges of your perception even down here.
+
+{crowe: "Bureau-grade, that one,"}  she says with a gap-toothed grin. {crowe: "Fell off a transport. Thirty credits."}
+
+It's not Bureau-grade. But it works.
+
+[SYSTEM: Resonance restored +20]
+
+The closed-eye door is still waiting at the end of the alley.`,
+
+  choices: [
+    {
+      id: "knock_rook_after_stim",
+      text: "Head to Rook's door",
+      effects: { flags_add: ["approached_rook"] },
+      leadsTo: "act1_scene06_rook"
+    }
+  ]
+},
+
+act1_scene06_observe: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Observation",
+  description: `You take a position in the shadow of a recycler unit and watch the alley for ten minutes. The foot traffic is light — Threadbare workers heading home, a couple of kids playing in the puddles, an old man arguing with a vending machine.
+
+No surveillance drones. No Bureau tails. No Lattice signatures at all — you're effectively invisible down here. The Spire's all-seeing eye doesn't reach this far.
+
+One thing catches your attention: a figure in a dark coat enters the alley from the far end, pauses at the closed-eye door, and knocks three times — pause — twice. The door opens. They slip inside. The door closes.
+
+A knock pattern. Three-two.`,
+
+  choices: [
+    {
+      id: "knock_rook_pattern",
+      text: "Knock on the door: three times, pause, twice",
+      effects: {
+        flags_add: ["approached_rook", "used_knock_pattern"],
+        npc_trust: { rook: 10 }
+      },
+      leadsTo: "act1_scene06_rook"
+    },
+    {
+      id: "knock_rook_badge",
+      text: "Knock normally and show your Bureau badge",
+      effects: {
+        flags_add: ["approached_rook"],
+        npc_trust: { rook: -15 }
+      },
+      leadsTo: "act1_scene06_rook_badge"
+    }
+  ]
+},
+
+act1_scene06_rook: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Rook's Workshop",
+  description: `The door opens a crack. Darkness beyond. A voice — low, careful, gender-indeterminate:
+
+"You're not Threadbare. I can smell the Thread on you — that ozone tang. Bureau?"
+
+A pause. The door doesn't close.
+
+"No. Not Bureau. Not exactly. Bureau wouldn't come alone. And Bureau wouldn't knock right."
+
+The door opens wider. Beyond it, a workshop cluttered with neural tech — disassembled Thread implants, signal dampeners, jury-rigged scanners. A figure in a hooded jacket sits at a workbench, face half-hidden. No Lattice signature. Not muted. Not dampened. Simply *absent*.
+
+{rook: "I'm Rook. And you're the investigator Crowe sent to look into the Voss murder."}
+
+You didn't tell anyone you were coming here.
+
+{rook: "Relax. I didn't read your mind. I can't — I'm Threadbare, remember? But news travels in the Substrate. A Bureau investigator asking questions about Node Dynamics and Null Frequency? People notice."}
+
+They gesture to a chair.
+
+{rook: "Sit. I think we have things to talk about."}`,
+
+  choices: [
+    {
+      id: "ask_rook_null_freq",
+      text: "\"What do you know about Null Frequency?\"",
+      effects: {
+        npc_trust: { rook: 5 },
+        flags_add: ["asked_rook_null_freq"]
+      },
+      leadsTo: "act1_scene06_rook_null"
+    },
+    {
+      id: "ask_rook_node",
+      text: "\"I heard you used to work for Node Dynamics.\"",
+      effects: {
+        flags_add: ["asked_rook_about_node"]
+      },
+      leadsTo: "act1_scene06_rook_node"
+    },
+    {
+      id: "show_datakey_rook",
+      text: "\"I have an encrypted datakey. Can you crack it?\"",
+      requires: { has_item: "voss_datakey" },
+      effects: {
+        npc_trust: { rook: 10 },
+        flags_add: ["showed_rook_datakey"]
+      },
+      leadsTo: "act1_scene06_rook_datakey"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "met_rook" },
+    { action: "journal", value: "Met Rook. Threadbare, former Node Dynamics. No Lattice signature at all. They already knew I was investigating the Voss case." }
+  ]
+},
+
+act1_scene06_rook_badge: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Rook's Door",
+  description: `You knock and hold up your Bureau badge. Silence. Then a dry laugh from behind the door.
+
+"Bureau badge in the Substrate. You're either very brave or very stupid."
+
+A long pause.
+
+"Come in. But put that thing away before someone sees it and decides you're worth robbing."
+
+The door opens to a cluttered workshop. Rook sits at a workbench, hooded, watching you with dark, assessing eyes.
+
+{rook: "A Bureau investigator who comes to the Substrate alone, flashing a badge. You're the one looking into the Voss murder."}
+
+{rook: "Sit down. And understand — I'm talking to you because Lior Voss was a decent man who tried to do the right thing. Not because of that badge."}`,
+
+  choices: [
+    {
+      id: "ask_rook_null_freq_badge",
+      text: "\"What do you know about Null Frequency?\"",
+      effects: {
+        npc_trust: { rook: 5 },
+        flags_add: ["asked_rook_null_freq"]
+      },
+      leadsTo: "act1_scene06_rook_null"
+    },
+    {
+      id: "ask_rook_node_badge",
+      text: "\"You used to work for Node Dynamics?\"",
+      effects: {
+        flags_add: ["asked_rook_about_node"]
+      },
+      leadsTo: "act1_scene06_rook_node"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "met_rook" },
+    { action: "journal", value: "Met Rook. Not impressed by the badge. Knows about the Voss murder. Willing to talk because Voss was 'a decent man.'" }
+  ]
+},
+
+act1_scene06_rook_null: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Rook's Workshop",
+  description: `Rook goes still. Then they pull back their hood. A lined face, indeterminate age, sharp eyes.
+
+{rook: "I know about Null Frequency because I helped invent it."}
+
+They let that sink in.
+
+{rook: "Nine years ago, I was a researcher at Node Dynamics. Neural architecture division. We were studying the Lattice Thread's signal propagation — trying to improve range and clarity. And we found something."}
+
+{rook: "The Thread doesn't just broadcast thoughts. It has a secondary channel. Hidden. Encrypted. A backdoor that lets Node Dynamics access any Thread-equipped mind without detection."}
+
+{rook: "My team developed Null Frequency as a countermeasure — a way to shield against the backdoor. When Node Dynamics found out, they shut us down. Two of my colleagues were Shatterpointed on fabricated charges. I escaped because I ripped out my own Thread implant and disappeared into the Substrate."}
+
+They hold up their wrist. A thick scar runs along the forearm — the extraction site.
+
+{rook: "Lior Voss found the same thing we found. The backdoor. And they killed him for it, same as they tried to kill us."}`,
+
+  choices: [
+    {
+      id: "ask_who_killed_voss",
+      text: "\"Who specifically? Who in Node Dynamics?\"",
+      effects: {
+        flags_add: ["asked_rook_who"]
+      },
+      leadsTo: "act1_scene06_rook_who"
+    },
+    {
+      id: "show_datakey_after_null",
+      text: "\"Voss had proof on an encrypted datakey. Can you decrypt it?\"",
+      requires: { has_item: "voss_datakey" },
+      effects: {
+        npc_trust: { rook: 10 },
+        flags_add: ["showed_rook_datakey"]
+      },
+      leadsTo: "act1_scene06_rook_datakey"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "knows_backdoor" },
+    { action: "journal", value: "CRITICAL: Rook confirms the Lattice Thread has a hidden backdoor. Node Dynamics can access any Thread-equipped mind without detection. Null Frequency was developed as a countermeasure — then suppressed. Researchers were Shatterpointed." }
+  ]
+},
+
+act1_scene06_rook_node: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Rook's Workshop",
+  description: `{rook: "Worked for them. Eight years. Neural architecture division. I helped design the signal propagation systems for the Thread Mark IV — the version most people in the Spire are wearing right now."}
+
+They pick up a disassembled Thread implant from the bench, turning it in their fingers.
+
+{rook: "Beautiful technology. Elegant. And rotten to the core."}
+
+{rook: "Node Dynamics isn't a biotech company, investigator. It's a surveillance apparatus. Every Thread implant is a listening device. Every augmented mind in the Spire is an open book to them — and they've been reading for forty years."}
+
+They set the implant down.
+
+{rook: "I left when I found out. The hard way."}`,
+
+  choices: [
+    {
+      id: "ask_null_freq_after_node",
+      text: "\"Tell me about Null Frequency.\"",
+      requires: { not_flag: "asked_rook_null_freq" },
+      effects: { npc_trust: { rook: 5 }, flags_add: ["asked_rook_null_freq"] },
+      leadsTo: "act1_scene06_rook_null"
+    },
+    {
+      id: "ask_who_from_node",
+      text: "\"Who at Node Dynamics would be capable of killing Voss?\"",
+      effects: { flags_add: ["asked_rook_who"] },
+      leadsTo: "act1_scene06_rook_who"
+    }
+  ]
+},
+
+act1_scene06_rook_who: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Rook's Workshop",
+  description: `{rook: "Silas Thane."}
+
+No hesitation.
+
+{rook: "Director of Operations. Class 1 Weaver — maybe the most powerful in the Spire. He's the one who ordered the Shatterpoints on my colleagues. He's the one who maintains the backdoor."}
+
+{rook: "Thane believes the backdoor is necessary. That society can't function without someone watching — that without the Thread's hidden oversight, the Spire would tear itself apart. He thinks he's a guardian. A necessary evil."}
+
+{rook: "He's also a fanatic. Anyone who threatens the backdoor's secrecy is eliminated. Not with guns or poison — with the Thread itself. A targeted neural cascade through the hidden channel. The victim's brain simply... stops. And the Lattice logs show nothing, because Thane controls what the logs record."}
+
+Rook looks at you steadily.
+
+{rook: "That's how Voss died. And that's how you'll die, if Thane finds out what you know."}
+
+[SYSTEM: Acquired Rook's Contact Info]`,
+
+  choices: [
+    {
+      id: "show_datakey_final",
+      text: "\"I have Voss's datakey. His proof. Can you crack it?\"",
+      requires: { has_item: "voss_datakey" },
+      effects: { npc_trust: { rook: 10 }, flags_add: ["showed_rook_datakey"] },
+      leadsTo: "act1_scene06_rook_datakey"
+    },
+    {
+      id: "ask_protection",
+      text: "\"How do I protect myself from the Thread?\"",
+      effects: { flags_add: ["asked_rook_protection"] },
+      leadsTo: "act1_scene06_rook_quiet_tech"
+    },
+    {
+      id: "leave_rook",
+      text: "\"I need to get back to the investigation. Thank you, Rook.\"",
+      effects: {
+        npc_trust: { rook: 5 },
+        flags_add: ["rook_encounter_complete"],
+        journal: "Rook confirmed: Silas Thane killed Voss using the Thread backdoor — a 'targeted neural cascade' through the hidden channel. He controls the Lattice logs."
+      },
+      leadsTo: "act1_scene07"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "knows_thane_is_killer" },
+    { action: "give_item", value: "rook_contact" }
+  ]
+},
+
+act1_scene06_rook_datakey: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Rook's Workshop",
+  description: `You hand Rook the datakey. They examine it under a magnifier, then slot it into a modified reader.
+
+{rook: "Node Dynamics encryption. Military-grade. But I designed the architecture it's built on."}
+
+Their fingers move quickly across a custom terminal. Code scrolls. Encryption layers peel away. After two minutes:
+
+{rook: "I can't fully decrypt it here. The outer layers are standard — I can crack those. But the core data has a second lock. A biometric key. Voss's neural signature."}
+
+{rook: "There might be a way around it. If you can get a clean psychic echo of Voss — his neural pattern, captured in the Lattice residue at the crime scene — I can synthesize a bypass key."}
+
+They hand the datakey back.
+
+{rook: "Go back to the penthouse. Use your Echo ability — replay Voss's last moments. Capture his neural pattern. Bring it back here, and I'll unlock everything."}
+
+[SYSTEM: Rook partially decrypted the datakey. Need Voss's neural echo to complete.]`,
+
+  choices: [
+    {
+      id: "agree_echo_plan",
+      text: "\"A psychic echo of a dead man. That's a tall order.\"",
+      effects: {
+        npc_trust: { rook: 5 },
+        flags_add: ["rook_encounter_complete", "echo_plan"],
+        journal: "Rook partially decrypted Voss's datakey. The core data needs Voss's neural signature. Rook says I can capture it using an Echo at the crime scene."
+      },
+      leadsTo: "act1_scene07"
+    }
+  ]
+},
+
+act1_scene06_rook_quiet_tech: {
+  title: "The Lower Tiers",
+  art: "lower-tiers.txt",
+  location: "Substrate · Rook's Workshop",
+  description: `Rook reaches into a drawer and pulls out a small injector — metallic, unmarked.
+
+{rook: "Quiet tech. My own design. It generates a neural interference pattern that blocks the Thread's hidden channel. Won't make you invisible — Readers can still sense you through normal Resonance — but it'll stop Thane from using the backdoor on you."}
+
+{rook: "One dose. Lasts about twelve hours. After that, you're exposed again."}
+
+They press the injector into your hand.
+
+{rook: "Use it when you need it most. Not before."}
+
+[SYSTEM: Acquired Quiet Injector]`,
+
+  choices: [
+    {
+      id: "leave_rook_with_injector",
+      text: "\"Thank you, Rook. I owe you.\"",
+      effects: {
+        npc_trust: { rook: 10 },
+        flags_add: ["rook_encounter_complete"],
+        journal: "Rook gave me a Quiet injector — blocks the Thread's hidden channel for 12 hours. Protection against Thane."
+      },
+      leadsTo: "act1_scene07"
+    }
+  ],
+  onEnter: [
+    { action: "give_item", value: "quiet_injector" }
+  ]
+},
+
+// ═══════════════════════════════════════════
+// SCENE 7: THE LATTICE ECHO
+// ═══════════════════════════════════════════
+
+act1_scene07: {
+  title: "The Lattice Echo",
+  art: "penthouse.txt",
+  location: "Voss Penthouse · Tier 9 · Return Visit",
+  description: `You return to the penthouse. The barrier tape is still up, but the Bureau tech is gone. The rain has stopped. The silence is heavy — the Faraday panels hum their tooth-aching hum.
+
+The chalk outline stares up at you from the marble floor. Lior Voss died here. Alone. In a room designed to protect him from exactly the kind of attack that killed him.
+
+If Rook is right, you need to capture an Echo of Voss's final moments — replay the psychic residue and capture his neural signature. It's a Class 2 technique. Painful. Draining. You'll be reliving a murder from the inside.
+
+You kneel by the chalk outline. Close your eyes. Place your palms flat on the cold marble.
+
+The Lattice Scanner amplifies the residual trace. It's faint — six days old, degraded by the Faraday shielding — but it's there. A ghost in the static.
+
+You reach for it.`,
+
+  choices: [
+    {
+      id: "echo_voss",
+      text: "[ECHO] Replay Voss's final moments",
+      cost: { resonance: -20 },
+      effects: {
+        flags_add: ["echoed_voss"],
+        integrity: 5
+      },
+      requires: { resonance_gte: 20 },
+      flavor: "*You sink into the residue. The world dissolves...*",
+      leadsTo: "act1_scene07_echo"
+    },
+    {
+      id: "quiet_before_echo",
+      text: "[QUIET] Shield yourself first, then attempt the Echo",
+      cost: { resonance: -30 },
+      effects: {
+        flags_add: ["echoed_voss", "shielded_echo"],
+        quietLevel: 40
+      },
+      requires: { resonance_gte: 30 },
+      flavor: "*You raise your shields, then reach into the past...*",
+      leadsTo: "act1_scene07_echo_shielded"
+    }
+  ],
+  onEnter: [
+    { action: "journal", value: "Returned to the penthouse. Preparing to Echo Voss's final moments — need his neural signature to decrypt the datakey." }
+  ]
+},
+
+act1_scene07_echo: {
+  title: "The Lattice Echo",
+  art: "lattice-void.txt",
+  location: "E C H O   ·   V O S S   ·   F I N A L   M O M E N T S",
+  description: `*The penthouse dissolves. You are Lior Voss.*
+
+*You're sitting at your desk. Late. The whiskey is half-finished. You're reading a document on your private terminal — data you extracted from Node Dynamics' internal servers. The proof. The backdoor.*
+
+*Fear. Constant, grinding fear. You've been afraid for weeks. But tonight it's worse. Tonight the Lattice feels wrong — thick, watchful, like being stared at by something you can't see.*
+
+*You reach for your comm to call Talia. Then—*
+
+*Pressure. Inside your skull. Not pain, not yet. Just a presence. Something sliding into your thoughts like a hand into a glove.*
+
+*"Mr. Voss. You've been asking questions you shouldn't ask."*
+
+*A voice. Not heard — felt. Calm. Clinical. Familiar? You've met this person. At a Consortium event. Tall. Dark eyes. Smiling.*
+
+*Silas Thane.*
+
+*"I'm sorry about this. Truly. But the Thread must be protected. You understand."*
+
+*The pressure becomes a vice. Your thoughts begin to unspool. Memories detaching. Connections severing. You try to scream but your body isn't yours anymore.*
+
+*The last thing you feel is cold. Absolute cold. And then—*
+
+*Nothing.*
+
+You gasp back into your own body. You're on the floor of the penthouse. Your nose is bleeding. Your hands are shaking.
+
+But you have it. Voss's neural signature. Burned into your scanner like a photograph of a ghost.
+
+[SYSTEM: Acquired Echo Recording]`,
+
+  choices: [
+    {
+      id: "go_to_revelation",
+      text: "Collect yourself. Time to put the pieces together.",
+      effects: {
+        flags_add: ["echo_complete"],
+        journal: "Echoed Voss's death. SAW THE KILLER: Silas Thane. Used the Thread backdoor — entered Voss's mind and disassembled his neural pathways from inside. Captured Voss's neural signature."
+      },
+      leadsTo: "act1_scene08"
+    }
+  ],
+  onEnter: [
+    { action: "give_item", value: "echo_recording" },
+    { action: "modify_stat", stat: "suspicion", value: 10 }
+  ]
+},
+
+act1_scene07_echo_shielded: {
+  title: "The Lattice Echo",
+  art: "lattice-void.txt",
+  location: "E C H O   ·   V O S S   ·   F I N A L   M O M E N T S",
+  description: `*Your Quiet shields hold as you sink into the Echo. The experience is no less harrowing, but you observe from behind glass rather than being submerged.*
+
+*You see Lior Voss at his desk. The fear. The document. Then the presence — a cold intelligence sliding into Voss's mind through the Thread's hidden channel.*
+
+*"Mr. Voss. You've been asking questions you shouldn't ask."*
+
+*Silas Thane. You see him clearly through the Echo — not his physical form, but his Lattice signature. A massive, dark presence. More powerful than any Weaver you've encountered. He doesn't just enter Voss's mind. He *inhabits* it.*
+
+*The neural cascade begins. Methodical. Precise. Each neural pathway severed with surgical exactness. Voss's personality comes apart like a building being demolished floor by floor.*
+
+*And through your shields, you notice something Voss couldn't: Thane isn't working alone. The Thread's hidden channel is *assisting* him — routing his power, amplifying his reach, suppressing the Lattice logs in real-time. The entire network is complicit.*
+
+*The Lattice itself is the weapon.*
+
+You surface smoothly, shields intact. Your nose isn't bleeding. Your hands are steady.
+
+You have the neural signature. And you have something else — proof that the Lattice network itself was weaponized.
+
+[SYSTEM: Acquired Echo Recording]`,
+
+  choices: [
+    {
+      id: "go_to_revelation_shielded",
+      text: "Time to put the pieces together.",
+      effects: {
+        flags_add: ["echo_complete", "saw_lattice_weapon"],
+        journal: "Shielded Echo of Voss's death. Killer: Silas Thane. Used Thread backdoor + the Lattice network itself as an amplifier. The entire system was weaponized. Captured neural signature."
+      },
+      leadsTo: "act1_scene08"
+    }
+  ],
+  onEnter: [
+    { action: "give_item", value: "echo_recording" },
+    { action: "modify_stat", stat: "suspicion", value: 5 }
+  ]
+},
+
+// ═══════════════════════════════════════════
+// SCENE 8: THE REVELATION
+// ═══════════════════════════════════════════
+
+act1_scene08: {
+  title: "The Revelation",
+  art: "kael-office.txt",
+  location: "Kael's Office · Tier 3",
+  description: `Back in your office, you lay out everything you've gathered. The rain has returned. It always returns.
+
+The pieces:
+
+The Lattice Thread has a hidden backdoor. Node Dynamics can access any augmented mind without detection. Lior Voss discovered this and was murdered before he could expose it.
+
+The killer: Silas Thane. Node Dynamics Director of Operations. Class 1 Weaver. Used the backdoor to enter Voss's mind through a compromised Faraday panel and disassembled his neural pathways from the inside. The Lattice logs were rewritten in real-time to show nothing.
+
+The proof is on Voss's datakey — which you now have the neural signature to decrypt.
+
+The question is: what do you do with it?
+
+Director Crowe assigned you this case. But Rennick's thoughts revealed she's protecting Thane's file. How deep does this go?
+
+Rook is waiting in the Substrate to decrypt the datakey. Talia Enke has been living in fear since Voss's death. And somewhere in the upper tiers, Silas Thane is watching the Lattice — watching *you*.
+
+Your comm buzzes. A message from an unknown source:
+
+*"I know who you are. I know what you've found. Meet me at the Black Frequency, Tier 2. Midnight. Come alone. — E."*
+
+E. The person Voss was going to meet. The person who might have the rest of the puzzle.
+
+But midnight in the lower tiers, summoned by a stranger, with a killer Weaver potentially reading your every thought?
+
+Act I ends here. The real investigation is just beginning.`,
+
+  choices: [
+    {
+      id: "ending_decrypt",
+      text: "Take the echo recording to Rook. Decrypt the datakey first.",
+      effects: {
+        flags_add: ["act1_complete", "chose_decrypt_first"],
+        journal: "ACT I COMPLETE. Chose to decrypt Voss's datakey with Rook before meeting E. The proof comes first."
+      },
+      leadsTo: "act1_ending"
+    },
+    {
+      id: "ending_meet_e",
+      text: "Go to the Black Frequency. Meet E. at midnight.",
+      effects: {
+        flags_add: ["act1_complete", "chose_meet_e"],
+        journal: "ACT I COMPLETE. Chose to meet the mysterious E. Knowledge is power — but so is trust."
+      },
+      leadsTo: "act1_ending"
+    },
+    {
+      id: "ending_tell_crowe",
+      text: "Report everything to Director Crowe. Let the Bureau handle it.",
+      effects: {
+        flags_add: ["act1_complete", "chose_report_crowe"],
+        npc_trust: { crowe: 20 },
+        suspicion: 15,
+        journal: "ACT I COMPLETE. Chose to report to Crowe. If she's compromised, I've just signed my own Shatterpoint warrant."
+      },
+      leadsTo: "act1_ending"
+    },
+    {
+      id: "ending_use_injector",
+      text: "Use the Quiet injector. Go dark. Trust no one.",
+      requires: { has_item: "quiet_injector" },
+      effects: {
+        flags_add: ["act1_complete", "chose_go_dark"],
+        quietLevel: 80,
+        journal: "ACT I COMPLETE. Used the Quiet injector. Twelve hours of invisibility. Time to move fast."
+      },
+      leadsTo: "act1_ending"
+    }
+  ],
+  onEnter: [
+    { action: "set_flag", value: "reached_revelation" },
+    { action: "journal", value: "Received a message from 'E.' — the contact Voss was meeting. Midnight at the Black Frequency, Tier 2." }
+  ]
+},
+
+act1_ending: {
+  title: "End of Act I",
+  art: "title.txt",
+  location: "T H E   S P I R E   ·   2 1 8 9",
+  description: `The rain falls on the Spire. Forty million minds dreaming, scheming, screaming into the static. And somewhere in that noise, a monster wears the network like a skin.
+
+You know the truth now. The Lattice Thread — the technology that connects seven hundred million minds — is a lie. A cage disguised as a gift. And the man who holds the key to that cage has already killed to keep it locked.
+
+But you have proof. You have allies. And you have twelve hours before the world comes apart.
+
+═══════════════════════════════════════════
+
+       E N D   O F   A C T   I
+
+       "T H E   I M P O S S I B L E   C R I M E"
+
+═══════════════════════════════════════════
+
+Your choices have been recorded. When Act II arrives, your decisions will shape the investigation.
+
+Thank you for playing the SHATTERPOINT demo.
+
+[SYSTEM: Your game has been saved. You can reload from this point when Act II becomes available.]`,
+
+  choices: [
+    {
+      id: "restart",
+      text: "Return to title screen",
+      leadsTo: "act1_scene01",
+      effects: {}
+    }
+  ]
+},
+
+// ═══════════════════════════════════════════
+// GAME OVER: CAPTURED
+// ═══════════════════════════════════════════
+
+game_over_captured: {
+  title: "S H A T T E R P O I N T",
+  art: "lattice-void.txt",
+  location: "Bureau Detention · Location Unknown",
+  description: `They came for you in the night. Bureau operatives. Weavers. You didn't even hear them — they were in your mind before they were at your door.
+
+{thane: "Investigator Maren. You've been asking questions that threaten the stability of the Spire. The Consortium thanks you for your service. It is no longer required."}
+
+The last thing you see is a sterile room. White walls. A chair with restraints. And Silas Thane's dark eyes, calm and regretful, as the neural cascade begins.
+
+Your thoughts unspool. Memories detach. Connections sever. You try to hold onto something — a name, a face, a reason — but it all slips through your fingers like smoke.
+
+The last thought you have, before Kael Maren ceases to exist, is:
+
+*Someone else will find the truth.*
+
+═══════════════════════════════════════════
+
+       G A M E   O V E R
+
+       S H A T T E R P O I N T E D
+
+═══════════════════════════════════════════`,
+
+  choices: [
+    {
+      id: "restart_from_gameover",
+      text: "Return to title screen",
+      leadsTo: "act1_scene01",
+      effects: {}
+    }
+  ]
+}
+
+};
