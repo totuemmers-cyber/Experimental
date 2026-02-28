@@ -4,14 +4,21 @@ const ArtLoader = {
   cache: {},
 
   /**
-   * Load ASCII art from a .txt file in the art/ directory.
-   * Returns cached version if available.
+   * Load ASCII art. Uses inline data (ART_INLINE) if available,
+   * falls back to fetching from art/ directory.
    */
   async load(filename) {
     if (this.cache[filename]) {
       return this.cache[filename];
     }
 
+    // Try inline data first (works everywhere, including file://)
+    if (typeof ART_INLINE !== 'undefined' && ART_INLINE[filename]) {
+      this.cache[filename] = ART_INLINE[filename];
+      return this.cache[filename];
+    }
+
+    // Fall back to fetch (works on http/https)
     try {
       const response = await fetch('art/' + filename);
       if (!response.ok) {

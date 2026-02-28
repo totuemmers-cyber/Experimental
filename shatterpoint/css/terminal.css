@@ -1,6 +1,5 @@
 /* === SHATTERPOINT: CRT Terminal Aesthetic === */
-
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+/* Google Fonts loaded via <link> in index.html to avoid blocking CSS */
 
 :root {
   --bg: #0a0a0a;
