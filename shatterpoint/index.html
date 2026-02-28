@@ -1456,115 +1456,287 @@ const Audio = {
   },
 
   // ═══════════════════════════════════════
-  // AMBIENT SOUNDTRACK
+  // SOUNDTRACK — Sci-fi noir generative score
   // ═══════════════════════════════════════
 
+  // Musical constants
+  _bpm: 72,
+  _chords: [
+    // Am9       → Dm9       → Fmaj7     → Em7add11
+    [55, 164.81, 261.63, 329.63, 493.88],
+    [73.42, 174.61, 261.63, 329.63, 440],
+    [87.31, 174.61, 261.63, 329.63, 392],
+    [82.41, 164.81, 246.94, 329.63, 440]
+  ],
+  _arpIntervals: null,
+  _seqIndex: 0,
+
   /**
-   * Start the ambient drone soundtrack.
-   * Layered: sub-bass drone + mid hum + high shimmer + filtered noise.
+   * Start the generative ambient score.
+   * Layers: pad chords, walking bass, arpeggiator, subtle percussion, atmosphere.
    */
   startMusic() {
     if (!this.initialized || this.musicPlaying) return;
     this.musicPlaying = true;
+    this._seqIndex = 0;
 
     const ctx = this.ctx;
     const now = ctx.currentTime;
+    const beatLen = 60 / this._bpm;
 
-    // Layer 1: Sub-bass drone (fundamental)
-    const bass = ctx.createOscillator();
+    // Fade in
+    this.musicGain.gain.setValueAtTime(0, now);
+    this.musicGain.gain.linearRampToValueAtTime(0.30, now + 4);
+
+    this._startPad(ctx, now);
+    this._startBass(ctx, now, beatLen);
+    this._startArp(ctx, now, beatLen);
+    this._startPerc(ctx, now, beatLen);
+    this._startAtmosphere(ctx, now);
+  },
+
+  _startPad(ctx, now) {
+    const padGain = ctx.createGain();
+    padGain.gain.value = 0.09;
+    const padFilter = ctx.createBiquadFilter();
+    padFilter.type = 'lowpass';
+    padFilter.frequency.value = 900;
+    padFilter.Q.value = 1.5;
+    padFilter.connect(padGain);
+    padGain.connect(this.musicGain);
+
+    const barLen = (60 / this._bpm) * 4;
+    const chordLen = barLen * 4;
+
+    const oscs = [];
+    for (let i = 0; i < 5; i++) {
+      const o1 = ctx.createOscillator();
+      const o2 = ctx.createOscillator();
+      o1.type = 'sawtooth';
+      o2.type = 'sawtooth';
+      o1.frequency.value = this._chords[0][i];
+      o2.frequency.value = this._chords[0][i] * 1.003;
+      const mix = ctx.createGain();
+      mix.gain.value = i === 0 ? 0.15 : 0.1;
+      o1.connect(mix);
+      o2.connect(mix);
+      mix.connect(padFilter);
+      o1.start(now);
+      o2.start(now);
+      oscs.push(o1, o2);
+    }
+
+    this._padInterval = setInterval(() => {
+      if (!this.musicPlaying) return;
+      this._seqIndex = (this._seqIndex + 1) % this._chords.length;
+      const chord = this._chords[this._seqIndex];
+      const t = ctx.currentTime;
+      for (let i = 0; i < 5; i++) {
+        oscs[i * 2].frequency.linearRampToValueAtTime(chord[i], t + 2);
+        oscs[i * 2 + 1].frequency.linearRampToValueAtTime(chord[i] * 1.003, t + 2);
+      }
+      const fc = 700 + Math.random() * 600;
+      padFilter.frequency.linearRampToValueAtTime(fc, t + 3);
+    }, chordLen * 1000);
+
+    this.musicNodes.push(...oscs);
+    this._padNodes = { oscs, padGain, padFilter };
+  },
+
+  _startBass(ctx, now, beatLen) {
     const bassGain = ctx.createGain();
-    bass.type = 'sine';
-    bass.frequency.value = 55; // A1
-    bassGain.gain.value = 0.3;
-    bass.connect(bassGain);
+    bassGain.gain.value = 0.18;
+    const bassFilter = ctx.createBiquadFilter();
+    bassFilter.type = 'lowpass';
+    bassFilter.frequency.value = 300;
+    bassFilter.Q.value = 3;
+    bassFilter.connect(bassGain);
     bassGain.connect(this.musicGain);
-    bass.start(now);
 
-    // Slow pitch drift on bass
-    bass.frequency.setValueAtTime(55, now);
-    this._driftLoop(bass.frequency, 55, 58, 20);
+    const playBassNote = (freq, time, dur) => {
+      const osc = ctx.createOscillator();
+      const env = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      env.gain.setValueAtTime(0.001, time);
+      env.gain.linearRampToValueAtTime(1, time + 0.04);
+      env.gain.exponentialRampToValueAtTime(0.3, time + dur * 0.5);
+      env.gain.linearRampToValueAtTime(0.001, time + dur);
+      osc.connect(env);
+      env.connect(bassFilter);
+      osc.start(time);
+      osc.stop(time + dur + 0.01);
+    };
 
-    // Layer 2: Mid-range hum (octave + fifth)
-    const mid = ctx.createOscillator();
-    const midGain = ctx.createGain();
-    mid.type = 'triangle';
-    mid.frequency.value = 82.5; // E2 (fifth above A1)
-    midGain.gain.value = 0.12;
-    mid.connect(midGain);
-    midGain.connect(this.musicGain);
-    mid.start(now);
-    this._driftLoop(mid.frequency, 82, 84, 15);
+    const scheduleBass = () => {
+      if (!this.musicPlaying) return;
+      const chord = this._chords[this._seqIndex];
+      const root = chord[0];
+      const fifth = root * 1.5;
+      const pattern = [root, root, fifth, root * 0.75, root, fifth, root, root * 1.25];
+      const t = ctx.currentTime;
+      for (let i = 0; i < 8; i++) {
+        playBassNote(pattern[i], t + i * beatLen, beatLen * 0.85);
+      }
+      this._bassTimeout = setTimeout(scheduleBass, beatLen * 8 * 1000);
+    };
+    scheduleBass();
+  },
 
-    // Layer 3: High shimmer (very quiet, adds texture)
-    const high = ctx.createOscillator();
-    const highGain = ctx.createGain();
-    const highFilter = ctx.createBiquadFilter();
-    high.type = 'sawtooth';
-    high.frequency.value = 440;
-    highGain.gain.value = 0.03;
-    highFilter.type = 'bandpass';
-    highFilter.frequency.value = 800;
-    highFilter.Q.value = 2;
-    high.connect(highFilter);
-    highFilter.connect(highGain);
-    highGain.connect(this.musicGain);
-    high.start(now);
-    this._driftLoop(highFilter.frequency, 600, 1200, 25);
+  _startArp(ctx, now, beatLen) {
+    const arpGain = ctx.createGain();
+    arpGain.gain.value = 0.06;
+    const arpDelay = ctx.createDelay(1);
+    arpDelay.delayTime.value = beatLen * 0.75;
+    const arpFeedback = ctx.createGain();
+    arpFeedback.gain.value = 0.3;
+    const arpFilter = ctx.createBiquadFilter();
+    arpFilter.type = 'bandpass';
+    arpFilter.frequency.value = 2000;
+    arpFilter.Q.value = 1;
 
-    // Layer 4: Filtered noise (hiss/static — very quiet)
-    const noiseBuffer = this._createNoiseBuffer(2);
+    arpGain.connect(arpFilter);
+    arpFilter.connect(this.musicGain);
+    arpGain.connect(arpDelay);
+    arpDelay.connect(arpFeedback);
+    arpFeedback.connect(arpGain);
+
+    const arpPatterns = [
+      [0, 2, 3, 4, 3, 2],
+      [4, 3, 2, 0, 2, 3],
+      [0, 4, 2, 3, 0, 2],
+      [3, 2, 4, 0, 3, 2],
+    ];
+    let patIdx = 0;
+
+    const scheduleArp = () => {
+      if (!this.musicPlaying) return;
+      const chord = this._chords[this._seqIndex];
+      const pattern = arpPatterns[patIdx % arpPatterns.length];
+      patIdx++;
+      const t = ctx.currentTime;
+      const sixteenth = beatLen / 2;
+
+      for (let i = 0; i < pattern.length; i++) {
+        const freq = chord[pattern[i]] * 2;
+        const osc = ctx.createOscillator();
+        const env = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const noteTime = t + i * sixteenth;
+        env.gain.setValueAtTime(0.001, noteTime);
+        env.gain.linearRampToValueAtTime(0.6 + Math.random() * 0.4, noteTime + 0.01);
+        env.gain.exponentialRampToValueAtTime(0.001, noteTime + sixteenth * 1.8);
+        osc.connect(env);
+        env.connect(arpGain);
+        osc.start(noteTime);
+        osc.stop(noteTime + sixteenth * 2);
+      }
+
+      this._arpTimeout = setTimeout(scheduleArp, sixteenth * pattern.length * 1000);
+    };
+
+    this._arpTimeout = setTimeout(scheduleArp, beatLen * 8 * 1000);
+  },
+
+  _startPerc(ctx, now, beatLen) {
+    const percGain = ctx.createGain();
+    percGain.gain.value = 0.04;
+    percGain.connect(this.musicGain);
+
+    const noiseBuffer = this._createNoiseBuffer(0.1);
+
+    const playHit = (time, loud) => {
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer;
+      const env = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = loud ? 6000 : 8000;
+      env.gain.setValueAtTime(loud ? 0.8 : 0.2, time);
+      env.gain.exponentialRampToValueAtTime(0.001, time + (loud ? 0.08 : 0.04));
+      src.connect(filter);
+      filter.connect(env);
+      env.connect(percGain);
+      src.start(time);
+      src.stop(time + 0.1);
+    };
+
+    const schedulePerc = () => {
+      if (!this.musicPlaying) return;
+      const t = ctx.currentTime;
+      for (let b = 0; b < 8; b++) {
+        const beatTime = t + b * beatLen;
+        const inBar = b % 4;
+        if (inBar === 1 || inBar === 3) {
+          playHit(beatTime, true);
+        }
+        if (Math.random() > 0.5) {
+          playHit(beatTime + beatLen * 0.5, false);
+        }
+      }
+      this._percTimeout = setTimeout(schedulePerc, beatLen * 8 * 1000);
+    };
+    schedulePerc();
+  },
+
+  _startAtmosphere(ctx, now) {
+    const noiseBuffer = this._createNoiseBuffer(4);
     const noise = ctx.createBufferSource();
-    const noiseGain = ctx.createGain();
-    const noiseFilter = ctx.createBiquadFilter();
     noise.buffer = noiseBuffer;
     noise.loop = true;
-    noiseGain.gain.value = 0.04;
+    const noiseFilter = ctx.createBiquadFilter();
     noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 3000;
-    noiseFilter.Q.value = 0.5;
+    noiseFilter.frequency.value = 2500;
+    noiseFilter.Q.value = 0.3;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0.015;
     noise.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
     noiseGain.connect(this.musicGain);
     noise.start(now);
 
-    // Layer 5: Pulse (very slow, barely audible — like a heartbeat in the Lattice)
-    const pulse = ctx.createOscillator();
-    const pulseGain = ctx.createGain();
-    const pulseLfo = ctx.createOscillator();
-    const pulseLfoGain = ctx.createGain();
-    pulse.type = 'sine';
-    pulse.frequency.value = 110;
-    pulseGain.gain.value = 0;
-    pulseLfo.type = 'sine';
-    pulseLfo.frequency.value = 0.15; // One pulse every ~7 seconds
-    pulseLfoGain.gain.value = 0.06;
-    pulseLfo.connect(pulseLfoGain);
-    pulseLfoGain.connect(pulseGain.gain);
-    pulse.connect(pulseGain);
-    pulseGain.connect(this.musicGain);
-    pulse.start(now);
-    pulseLfo.start(now);
+    const high = ctx.createOscillator();
+    high.type = 'sine';
+    high.frequency.value = 1318.5;
+    const vibrato = ctx.createOscillator();
+    vibrato.type = 'sine';
+    vibrato.frequency.value = 4.5;
+    const vibGain = ctx.createGain();
+    vibGain.gain.value = 8;
+    vibrato.connect(vibGain);
+    vibGain.connect(high.frequency);
+    const highGain = ctx.createGain();
+    highGain.gain.value = 0.012;
+    high.connect(highGain);
+    highGain.connect(this.musicGain);
+    high.start(now);
+    vibrato.start(now);
 
-    // Fade in
-    this.musicGain.gain.setValueAtTime(0, now);
-    this.musicGain.gain.linearRampToValueAtTime(0.25, now + 3);
-
-    this.musicNodes = [bass, mid, high, noise, pulse, pulseLfo];
+    this.musicNodes.push(noise, high, vibrato);
+    this._driftLoop(noiseFilter.frequency, 1500, 3500, 20);
   },
 
-  /**
-   * Stop the ambient soundtrack with fade-out.
-   */
   stopMusic() {
     if (!this.initialized || !this.musicPlaying) return;
+    this.musicPlaying = false;
     const now = this.ctx.currentTime;
     this.musicGain.gain.linearRampToValueAtTime(0, now + 2);
+
+    clearInterval(this._padInterval);
+    clearTimeout(this._bassTimeout);
+    clearTimeout(this._arpTimeout);
+    clearTimeout(this._percTimeout);
+
     const nodes = this.musicNodes;
     setTimeout(() => {
       nodes.forEach(n => { try { n.stop(); } catch(e) {} });
     }, 2500);
+    if (this._padNodes) {
+      this._padNodes.oscs.forEach(o => { try { o.stop(); } catch(e) {} });
+    }
     this.musicNodes = [];
-    this.musicPlaying = false;
+    this._padNodes = null;
   },
 
   // ═══════════════════════════════════════
@@ -1812,11 +1984,14 @@ const TTS = {
 
   _findEnglishVoice() {
     const voices = speechSynthesis.getVoices();
-    // Prefer en-US, then en-GB, then any English
+    const eng = voices.filter(v => v.lang.startsWith('en'));
+    // Prefer a female English voice
+    const female = eng.find(v => /female|woman|zira|samantha|karen|victoria|fiona|moira|tessa/i.test(v.name));
     this.engVoice =
-      voices.find(v => v.lang === 'en-US') ||
-      voices.find(v => v.lang === 'en-GB') ||
-      voices.find(v => v.lang.startsWith('en')) ||
+      female ||
+      eng.find(v => v.lang === 'en-US') ||
+      eng.find(v => v.lang === 'en-GB') ||
+      eng[0] ||
       null;
   },
 

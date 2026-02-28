@@ -36,11 +36,14 @@ const TTS = {
 
   _findEnglishVoice() {
     const voices = speechSynthesis.getVoices();
-    // Prefer en-US, then en-GB, then any English
+    const eng = voices.filter(v => v.lang.startsWith('en'));
+    // Prefer a female English voice
+    const female = eng.find(v => /female|woman|zira|samantha|karen|victoria|fiona|moira|tessa/i.test(v.name));
     this.engVoice =
-      voices.find(v => v.lang === 'en-US') ||
-      voices.find(v => v.lang === 'en-GB') ||
-      voices.find(v => v.lang.startsWith('en')) ||
+      female ||
+      eng.find(v => v.lang === 'en-US') ||
+      eng.find(v => v.lang === 'en-GB') ||
+      eng[0] ||
       null;
   },
 
