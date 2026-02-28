@@ -1,13 +1,13 @@
     ╔═══════════════════════════════════════╗
-    ║  VOSS PENTHOUSE · TIER 9 · CROWN    ║
+    ║  VOSS PENTHOUSE · TIER 9 · CROWN      ║
     ╠═══════════════════════════════════════╣
     ║  :::::::::::::::::::::::::::::::::::  ║
-    ║  ::: RAIN ON PLASTEEL WINDOWS  :::   ║
+    ║  ::: RAIN ON PLASTEEL WINDOWS  :::    ║
     ║  :::::::::::::::::::::::::::::::::::  ║
-    ║  ┌────────┐  .========.  ┌────────┐  ║
-    ║  │ LATTICE│  | CHALK  |  │PERSONAL│  ║
-    ║  │TERMINAL│  |OUTLINE |  │ EFFECTS│  ║
-    ║  │  >_    │  | ◄body► |  │ ▪▪▪▪▪  │  ║
-    ║  └────────┘  '========'  └────────┘  ║
-    ║       [FARADAY PANELS: ACTIVE]       ║
+    ║  ┌────────┐  .========.  ┌────────┐   ║
+    ║  │ LATTICE│  | CHALK  |  │PERSONAL│   ║
+    ║  │TERMINAL│  |OUTLINE |  │ EFFECTS│   ║
+    ║  │  >_    │  | ◄body► |  │ ▪▪▪▪▪  │   ║
+    ║  └────────┘  '========'  └────────┘   ║
+    ║       [FARADAY PANELS: ACTIVE]        ║
     ╚═══════════════════════════════════════╝
