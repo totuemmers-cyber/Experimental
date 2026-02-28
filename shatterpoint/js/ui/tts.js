@@ -2,8 +2,9 @@
 
 const TTS = {
   supported: false,
-  enabled: false,
+  enabled: true,
   speaking: false,
+  engVoice: null,
 
   // NPC voice profiles: { pitch, rate }
   voices: {
@@ -24,10 +25,23 @@ const TTS = {
       console.warn('SpeechSynthesis not available');
       return;
     }
-    // Restore saved preference
+    // Restore saved preference (default ON)
     const saved = localStorage.getItem('shatterpoint_tts');
-    this.enabled = saved === 'true';
+    this.enabled = saved !== 'false';
     this.updateIndicator();
+    this._findEnglishVoice();
+    // Voices may load async — listen for the event
+    speechSynthesis.addEventListener('voiceschanged', () => this._findEnglishVoice());
+  },
+
+  _findEnglishVoice() {
+    const voices = speechSynthesis.getVoices();
+    // Prefer en-US, then en-GB, then any English
+    this.engVoice =
+      voices.find(v => v.lang === 'en-US') ||
+      voices.find(v => v.lang === 'en-GB') ||
+      voices.find(v => v.lang.startsWith('en')) ||
+      null;
   },
 
   toggle() {
@@ -64,6 +78,8 @@ const TTS = {
     segments.forEach(seg => {
       if (!seg.text.trim()) return;
       const utterance = new SpeechSynthesisUtterance(seg.text);
+      utterance.lang = 'en-US';
+      if (this.engVoice) utterance.voice = this.engVoice;
       const voice = this.voices[seg.type] || this.voices.narrator;
       utterance.pitch = voice.pitch;
       utterance.rate = voice.rate;
