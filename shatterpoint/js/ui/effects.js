@@ -65,6 +65,7 @@ const Effects = {
    */
   skipTypewriter(fullText, element) {
     this.cancelTypewriter();
+    TTS.stop();
     element.innerHTML = fullText;
     element.scrollTop = element.scrollHeight;
   },
@@ -153,6 +154,7 @@ const Effects = {
     const terminal = document.getElementById('terminal');
     this.flicker(terminal);
     Audio.sfxTransition();
+    TTS.stop();
     setTimeout(() => {
       callback();
     }, 200);

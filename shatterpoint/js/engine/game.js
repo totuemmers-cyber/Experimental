@@ -11,6 +11,7 @@ class Game {
 
   async start() {
     Renderer.init();
+    TTS.init();
     this.running = true;
     this.bindInput();
 
@@ -180,6 +181,10 @@ class Game {
       }
       if (e.key === 'j' || e.key === 'J') {
         Renderer.showJournal(this.state.journal);
+        return;
+      }
+      if (e.key === 'v' || e.key === 'V') {
+        TTS.toggle();
         return;
       }
 

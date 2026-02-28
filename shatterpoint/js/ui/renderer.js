@@ -122,6 +122,9 @@ const Renderer = {
   // === Narrative ===
 
   async showNarrative(text, instant = false) {
+    // Speak raw text before processing markup to HTML
+    TTS.speak(text);
+
     // Process text markup
     const processed = this.processMarkup(text);
     this.fullNarrativeText = processed;
