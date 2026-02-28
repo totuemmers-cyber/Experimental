@@ -195,6 +195,7 @@ const Renderer = {
 
       if (choice.available) {
         div.addEventListener('click', () => onSelect(choice.id));
+        div.addEventListener('mouseenter', () => Audio.sfxHover());
       }
 
       el.appendChild(div);

@@ -152,6 +152,7 @@ const Effects = {
   sceneTransition(callback) {
     const terminal = document.getElementById('terminal');
     this.flicker(terminal);
+    Audio.sfxTransition();
     setTimeout(() => {
       callback();
     }, 200);

@@ -22,6 +22,12 @@ class Game {
     if (this.gameStarted) return;
     this.gameStarted = true;
 
+    // Initialize audio on first user gesture
+    Audio.init();
+    Audio.resume();
+    Audio.startMusic();
+    Audio.sfxSelect();
+
     Renderer.hideTitleScreen();
 
     // Check for autosave
@@ -83,6 +89,14 @@ class Game {
 
     this.inputLocked = true;
 
+    // Play select SFX — psychic or normal
+    const choiceData = this.sceneManager.getAvailableChoices().find(c => c.id === choiceId);
+    if (choiceData && choiceData.text && choiceData.text.match(/^\[(SCAN|PROBE|WHISPER|QUIET|ECHO)\]/)) {
+      Audio.sfxPsychic();
+    } else {
+      Audio.sfxSelect();
+    }
+
     const result = this.sceneManager.executeChoice(choiceId);
     if (!result) {
       this.inputLocked = false;
@@ -115,6 +129,7 @@ class Game {
   }
 
   async gameOver(type) {
+    Audio.sfxGameOver();
     if (type === 'captured') {
       await this.transitionToScene('game_over_captured');
     }
